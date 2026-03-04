@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get into Golf Report - March 2026 | Played</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1e;--surface:#2a2a2b;--surface2:#333335;
+  --coral:#E85D6C;--coral-dim:rgba(232,93,108,.15);
+  --white:#ffffff;--gray:#9ca3af;--gray2:#6b7280;
+  --green:#34d399;--amber:#fbbf24;--blue:#60a5fa;
+  --radius:12px;--radius-sm:8px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--white);
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* Fade-in animation */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* Header */
+.header{padding:48px 0 24px;border-bottom:1px solid var(--surface2)}
+.logo{display:flex;align-items:center;margin-bottom:40px}
+.logo img{height:40px;width:auto}
+.logo span{font-size:22px;font-weight:700;color:var(--white)}
+.report-title{font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.1;margin-bottom:8px}
+.report-subtitle{font-size:16px;color:var(--gray);margin-bottom:4px}
+
+/* Sections */
+section{padding:64px 0}
+.section-label{
+  font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--coral);margin-bottom:8px;
+}
+.section-title{font-size:clamp(24px,3vw,36px);font-weight:700;margin-bottom:16px}
+.section-desc{color:var(--gray);font-size:15px;margin-bottom:32px}
+
+/* KPI Grid */
+.kpi-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+  border-radius:var(--radius);
+}
+.kpi-card{background:var(--surface);padding:28px 24px;border-radius:var(--radius)}
+.kpi-value{font-size:clamp(36px,4vw,52px);font-weight:800;line-height:1.1;margin-bottom:4px}
+.kpi-label{font-size:14px;color:var(--gray);line-height:1.4}
+
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--surface);border-radius:var(--radius-sm);padding:4px;width:fit-content}
+.tab{
+  padding:8px 20px;border-radius:6px;font-size:14px;font-weight:500;
+  cursor:pointer;color:var(--gray);background:transparent;border:none;
+  transition:all .2s;
+}
+.tab.active{background:var(--coral);color:var(--white)}
+.tab:hover:not(.active){color:var(--white)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Chart containers */
+.chart-container{background:var(--surface);border-radius:var(--radius);padding:24px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.chart-box{background:var(--surface);border-radius:var(--radius);padding:24px}
+.chart-box h3{font-size:16px;font-weight:600;margin-bottom:16px}
+.chart-box canvas{width:100%!important}
+
+/* Progress bars */
+.progress-item{margin-bottom:14px}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
+.progress-header .label{color:var(--white);font-weight:500}
+.progress-header .value{color:var(--gray)}
+.progress-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width 1.2s ease;width:0}
+.progress-fill.coral{background:var(--coral)}
+.progress-fill.green{background:var(--green)}
+.progress-fill.amber{background:var(--amber)}
+.progress-fill.blue{background:var(--blue)}
+
+/* Stat highlight */
+.stat-highlight{
+  display:flex;align-items:center;gap:24px;
+  background:var(--surface);border-radius:var(--radius);padding:32px;
+  border-left:4px solid var(--coral);margin-bottom:24px;
+}
+.stat-highlight .num{font-size:48px;font-weight:800;color:var(--white);white-space:nowrap}
+.stat-highlight .desc{font-size:15px;color:var(--gray)}
+
+/* Sortable table */
+.table-wrap{background:var(--surface);border-radius:var(--radius);overflow:hidden}
+.table-controls{padding:16px 24px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--surface2)}
+.search-input{
+  background:var(--bg);border:1px solid var(--surface2);border-radius:6px;
+  padding:8px 14px;color:var(--white);font-size:14px;width:240px;
+  font-family:inherit;
+}
+.search-input::placeholder{color:var(--gray2)}
+.search-input:focus{outline:none;border-color:var(--coral)}
+.sort-btn{
+  background:var(--bg);border:1px solid var(--surface2);border-radius:6px;
+  padding:8px 14px;color:var(--gray);font-size:13px;cursor:pointer;
+  font-family:inherit;transition:all .2s;
+}
+.sort-btn.active{border-color:var(--coral);color:var(--coral)}
+table{width:100%;border-collapse:collapse}
+thead th{
+  text-align:left;padding:12px 24px;font-size:12px;font-weight:600;
+  text-transform:uppercase;letter-spacing:1px;color:var(--gray);
+  border-bottom:1px solid var(--surface2);cursor:pointer;user-select:none;
+}
+thead th:hover{color:var(--white)}
+thead th .sort-arrow{font-size:10px;margin-left:4px;opacity:.5}
+thead th.sorted .sort-arrow{opacity:1;color:var(--coral)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04)}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody td{padding:12px 24px;font-size:14px}
+td .coverage-bar{display:flex;align-items:center;gap:8px}
+td .coverage-bar .bar{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+td .coverage-bar .fill{height:100%;border-radius:3px;background:var(--coral);transition:width .8s ease}
+td .coverage-bar .pct{font-size:13px;color:var(--gray);min-width:44px;text-align:right}
+
+/* Top venues */
+.venue-list{display:flex;flex-direction:column;gap:8px}
+.venue-item{
+  display:flex;align-items:center;gap:16px;
+  background:var(--surface);border-radius:var(--radius-sm);padding:16px 20px;
+}
+.venue-rank{
+  width:32px;height:32px;border-radius:50%;background:var(--coral-dim);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--coral);flex-shrink:0;
+}
+.venue-name{flex:1;font-size:14px;font-weight:500}
+.venue-count{
+  font-size:20px;font-weight:700;color:var(--coral);
+}
+.venue-count span{font-size:12px;color:var(--gray);font-weight:400;margin-left:4px}
+
+/* Summary cards */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.summary-card{background:var(--surface);border-radius:var(--radius);padding:24px}
+.summary-card h3{font-size:15px;font-weight:600;margin-bottom:12px}
+.summary-card .metric{font-size:32px;font-weight:800;margin-bottom:4px}
+.summary-card .detail{font-size:13px;color:var(--gray);line-height:1.5}
+
+/* Recommendations */
+.rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.rec-card{
+  background:var(--surface);border-radius:var(--radius);padding:24px;
+  border-top:3px solid var(--coral);
+}
+.rec-card h3{font-size:15px;font-weight:600;margin-bottom:12px}
+.rec-card p{font-size:13px;color:#d1d5db;line-height:1.6}
+.rec-card ul{list-style:none;margin-top:8px}
+.rec-card ul li{font-size:13px;color:#d1d5db;padding:4px 0;padding-left:16px;position:relative;line-height:1.6}
+.rec-card ul li::before{content:'';position:absolute;left:0;top:11px;width:6px;height:6px;border-radius:50%;background:var(--white)}
+
+/* Footer */
+.footer{
+  padding:48px 0;border-top:1px solid var(--surface2);
+  text-align:center;color:var(--gray2);font-size:13px;
+}
+.footer .brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.footer .brand img{height:24px;width:auto}
+.footer .brand span{font-weight:600;color:var(--gray)}
+
+/* Responsive */
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-row{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr}
+  .rec-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:1fr}
+  .tabs{flex-wrap:wrap}
+}
+
+/* Print stylesheet */
+@media print{
+  body{background:#fff;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .container{max-width:100%}
+  .search-input,.sort-btn{display:none!important}
+  .reveal{opacity:1!important;transform:none!important}
+  .header{padding:24px 0 12px}
+  section{padding:32px 0}
+  .kpi-card,.chart-box,.summary-card,.rec-card,.venue-item,.stat-highlight,.table-wrap{
+    background:#f9f9f9!important;border:1px solid #e5e5e5;
+  }
+  .kpi-value,.venue-count,.stat-highlight .num,.summary-card .metric{color:#000!important}
+  .section-label{color:#E85D6C!important}
+  .progress-bar{background:#e5e5e5!important}
+  canvas{max-height:300px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="container">
+  <header class="header">
+    <div class="logo">
+      <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+    </div>
+    <h1 class="report-title">Get into Golf Report</h1>
+    <p class="report-subtitle">March 2026</p>
+    <p class="report-subtitle" style="color:var(--gray2)">Data from 1,808 EG affiliated venues across England. "Get into Golf" covers beginner programmes, junior coaching, women and girls sessions, taster sessions, holiday camps, and beginner-level memberships. Standard facilities, established-player activities, and individual lessons are excluded.</p>
+  </header>
+</div>
+
+<!-- OVERVIEW KPIs -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Overview</p>
+    <div class="kpi-grid reveal">
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="1808">0</div>
+        <div class="kpi-label">Total golf venues scanned</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="5573">0</div>
+        <div class="kpi-label">Get into Golf opportunities identified</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="66.5" data-suffix="%">0</div>
+        <div class="kpi-label">Venues with GiG opportunities</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="4.6" data-decimals="1">0</div>
+        <div class="kpi-label">Get into Golf opportunities per venue</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="7572">0</div>
+        <div class="kpi-label">Other opportunities identified (non GiG)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="33.5" data-suffix="%">0</div>
+        <div class="kpi-label">Venues without GiG opportunities</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GET INTO GOLF BREAKDOWN -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Breakdown</p>
+    <h2 class="section-title reveal">Get into Golf opportunities</h2>
+    <p class="section-desc reveal">5,573 opportunities across four categories, 13 programme types, and 10 audience segments.</p>
+    <div class="reveal">
+      <div class="tabs">
+        <button class="tab active" data-tab="category">Category</button>
+        <button class="tab" data-tab="programme">Programme type</button>
+        <button class="tab" data-tab="audience">Audience</button>
+      </div>
+      <div class="tab-panel active" id="panel-category">
+        <div class="chart-container"><div style="position:relative;height:200px"><canvas id="chartCategory"></canvas></div></div>
+      </div>
+      <div class="tab-panel" id="panel-programme">
+        <div class="chart-container"><div style="position:relative;height:380px"><canvas id="chartProgramme"></canvas></div></div>
+      </div>
+      <div class="tab-panel" id="panel-audience">
+        <div class="chart-container"><div style="position:relative;height:300px"><canvas id="chartAudience"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIENCE REACH -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Audience</p>
+    <h2 class="section-title reveal">Venue coverage by audience</h2>
+    <div class="chart-row reveal">
+      <div class="chart-box">
+        <h3>Venues offering GiG provision</h3>
+        <div style="margin-top:12px">
+          <div class="progress-item"><div class="progress-header"><span class="label">Any GiG opportunity</span><span class="value">1,202 venues (66.5%)</span></div><div class="progress-bar"><div class="progress-fill green" data-width="66.5"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Junior provision</span><span class="value">966 venues (53.4%)</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="53.4"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Dedicated women's/girls' programmes</span><span class="value">448 venues (24.8%)</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="24.8"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Holiday camps</span><span class="value">135 venues (7.5%)</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="7.5"></div></div></div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <h3>GiG depth per venue</h3>
+        <div style="position:relative;height:220px">
+          <canvas id="venueDepth"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JUNIOR DEEP DIVE -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Junior Golf</p>
+    <h2 class="section-title reveal">Junior deep dive</h2>
+    <div class="stat-highlight reveal">
+      <div class="num" data-count="966">0</div>
+      <div class="desc">venues (53.4%) offer junior-specific opportunities, totalling 2,907 opportunities across programmes, coaching, memberships, holiday camps, and more.</div>
+    </div>
+    <div class="chart-row reveal">
+      <div class="chart-box">
+        <h3>Top regions for junior golf</h3>
+        <div style="margin-top:12px">
+          <div class="progress-item"><div class="progress-header"><span class="label">Kent</span><span class="value">70.7%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="70.7"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Hertfordshire</span><span class="value">70.8%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="70.8"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Cheshire</span><span class="value">69.8%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="69.8"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Derbyshire</span><span class="value">68.8%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="68.8"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Yorkshire</span><span class="value">67.7%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="67.7"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Essex</span><span class="value">66.7%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="66.7"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Lancashire</span><span class="value">65.6%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="65.6"></div></div></div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <h3>Priority regions (lowest coverage)</h3>
+        <div style="margin-top:12px">
+          <div class="progress-item"><div class="progress-header"><span class="label">Cornwall</span><span class="value">40.6%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="40.6"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Merseyside</span><span class="value">41.7%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="41.7"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Nottinghamshire</span><span class="value">43.8%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="43.8"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Bedfordshire</span><span class="value">50.0%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="50.0"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Dorset</span><span class="value">50.0%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="50.0"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">County Durham</span><span class="value">51.6%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="51.6"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Lincolnshire</span><span class="value">59.0%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="59.0"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WOMEN & GIRLS -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Women &amp; Girls</p>
+    <h2 class="section-title reveal">Dedicated women's and girls' provision</h2>
+    <p class="section-desc reveal">All mixed/open GiG opportunities (84.8%) are available to women and girls. In addition, 448 venues go further by offering 811 dedicated programmes providing tailored environments designed to welcome female participants into the game.</p>
+    <div class="stat-highlight reveal">
+      <div class="num" data-count="27.4" data-suffix="%">0</div>
+      <div class="desc">of non-junior GiG opportunities (746 of 2,719) are women-only. This includes 471 Female Adult opportunities and 275 All Ages (Female) opportunities across dedicated programmes, coaching, memberships, and taster sessions.</div>
+    </div>
+    <div class="chart-row reveal">
+      <div class="chart-box">
+        <h3>Top regions for women's provision</h3>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Highest percentage of venues offering dedicated women's and girls' programmes.</p>
+        <div style="margin-top:8px">
+          <div class="progress-item"><div class="progress-header"><span class="label">Cambridgeshire</span><span class="value">41.2%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="41.2" data-max="50"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Leicestershire</span><span class="value">39.1%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="39.1" data-max="50"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Greater Manchester</span><span class="value">35.7%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="35.7" data-max="50"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Hertfordshire</span><span class="value">33.8%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="33.8" data-max="50"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Surrey</span><span class="value">32.3%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="32.3" data-max="50"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Cheshire</span><span class="value">31.7%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="31.7" data-max="50"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Kent</span><span class="value">30.7%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="30.7" data-max="50"></div></div></div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <h3>Regions with greatest opportunity</h3>
+        <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Lowest dedicated women's provision. These regions represent the greatest opportunity to introduce dedicated women's and girls' programmes alongside mixed provision already in place.</p>
+        <div style="margin-top:8px">
+          <div class="progress-item"><div class="progress-header"><span class="label">Cornwall</span><span class="value">9.4%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="9.4" data-max="25"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Bedfordshire</span><span class="value">11.1%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="11.1" data-max="25"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Cumbria</span><span class="value">11.1%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="11.1" data-max="25"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Shropshire</span><span class="value">13.6%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="13.6" data-max="25"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Berkshire</span><span class="value">15.2%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="15.2" data-max="25"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Wiltshire</span><span class="value">16.0%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="16.0" data-max="25"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Warwickshire</span><span class="value">16.7%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="16.7" data-max="25"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REGIONAL TABLE -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Regions</p>
+    <h2 class="section-title reveal">Regional analysis</h2>
+    <div class="table-wrap reveal">
+      <div class="table-controls">
+        <input type="text" class="search-input" id="regionSearch" placeholder="Search regions...">
+        <button class="sort-btn active" data-sort="opportunities" id="sortOpp">Sort by opportunities</button>
+        <button class="sort-btn" data-sort="coverage" id="sortCov">Sort by coverage</button>
+      </div>
+      <table id="regionalTable">
+        <thead>
+          <tr>
+            <th>Region</th>
+            <th>Total Venues</th>
+            <th>GiG Venues</th>
+            <th>Coverage</th>
+            <th>Opportunities</th>
+            <th>Avg / Venue</th>
+          </tr>
+        </thead>
+        <tbody id="regionBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- TOP VENUES -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Best Practice</p>
+    <h2 class="section-title reveal">Top venues for Get into Golf</h2>
+    <p class="section-desc reveal">These venues have the most Get into Golf opportunities, representing potential models of best practice.</p>
+    <div class="venue-list reveal">
+      <div class="venue-item"><div class="venue-rank">1</div><div class="venue-name">Coombe Wood Golf Club</div><div class="venue-count">24<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">2</div><div class="venue-name">Ashton-under-Lyne Golf Club</div><div class="venue-count">22<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">3</div><div class="venue-name">The Leicestershire Golf Club</div><div class="venue-count">21<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">3</div><div class="venue-name">Winchester Golf Academy</div><div class="venue-count">21<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">5</div><div class="venue-name">Cleethorpes Golf Club</div><div class="venue-count">18<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">5</div><div class="venue-name">St Clements Golf Club</div><div class="venue-count">18<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">5</div><div class="venue-name">Weybrook Park Golf Club</div><div class="venue-count">18<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">8</div><div class="venue-name">Cuckfield Golf Centre</div><div class="venue-count">17<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">8</div><div class="venue-name">Links Golf Club</div><div class="venue-count">17<span>opps</span></div></div>
+      <div class="venue-item"><div class="venue-rank">10</div><div class="venue-name">Westerham Golf Club, Kent</div><div class="venue-count">16<span>opps</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING & DATA QUALITY -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Data Quality</p>
+    <h2 class="section-title reveal">Pricing &amp; data quality</h2>
+    <div class="summary-grid reveal">
+      <div class="summary-card">
+        <h3>Pricing visibility</h3>
+        <div class="metric" data-count="36.1" data-suffix="%">0</div>
+        <div class="detail">of GiG opportunities have published pricing. 251 are explicitly free. 3,484 have no published price.</div>
+      </div>
+      <div class="summary-card">
+        <h3>Schedule visibility</h3>
+        <div class="metric" data-count="49.6" data-suffix="%">0</div>
+        <div class="detail">have specific schedule information. The remainder require contacting the venue directly.</div>
+      </div>
+      <div class="summary-card">
+        <h3>Free opportunities</h3>
+        <div class="metric" data-count="251">0</div>
+        <div class="detail">GiG opportunities are explicitly free to attend, removing the cost barrier for new participants.</div>
+      </div>
+    </div>
+    <div class="chart-row reveal" style="margin-top:24px">
+      <div class="chart-box">
+        <h3>Field completeness</h3>
+        <div style="margin-top:12px">
+          <div class="progress-item"><div class="progress-header"><span class="label">Booking URL</span><span class="value">100%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="100"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Contact details</span><span class="value">72.0%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="72"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Schedule (specific)</span><span class="value">49.6%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="49.6"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Price</span><span class="value">36.1%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="36.1"></div></div></div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <h3>Pricing by category (median)</h3>
+        <canvas id="chartPricing" height="180"></canvas>
+      </div>
+    </div>
+    <div class="chart-row reveal" style="margin-top:24px">
+      <div class="chart-box">
+        <h3>Pricing range</h3>
+        <div style="margin-top:12px">
+          <div class="progress-item"><div class="progress-header"><span class="label">Programme</span><span class="value">£2 - £1,200 (median £50)</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="50" data-max="140"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Coaching</span><span class="value">£2 - £1,495 (median £20)</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="20" data-max="140"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Membership</span><span class="value">£5 - £1,800 (median £135)</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="135" data-max="140"></div></div></div>
+          <div class="progress-item"><div class="progress-header"><span class="label">Play</span><span class="value">£2 - £100 (median £10)</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="10" data-max="140"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECOMMENDATIONS -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Insights</p>
+    <h2 class="section-title reveal">Key recommendations</h2>
+    <div class="rec-grid reveal">
+      <div class="rec-card">
+        <h3>Expand GiG provision</h3>
+        <ul>
+          <li>606 venues (33.5%) have zero GiG opportunities. Primary targets for outreach.</li>
+          <li>Holiday camps at just 135 venues. School holidays are a prime window for junior engagement.</li>
+          <li>Family golf is almost invisible (44 opportunities). Family-friendly formats could be a significant growth lever.</li>
+        </ul>
+      </div>
+      <div class="rec-card">
+        <h3>Regional priorities</h3>
+        <ul>
+          <li><strong>Junior gap regions:</strong> Cornwall (40.6%), Merseyside (41.7%), Nottinghamshire (43.8%), Bedfordshire (50.0%)</li>
+          <li><strong>Women's programme gaps:</strong> Cornwall (9.4%), Bedfordshire (11.1%), Cumbria (11.1%), Shropshire (13.6%)</li>
+          <li>448 venues already offer dedicated women's programmes. Strong opportunity to expand further.</li>
+        </ul>
+      </div>
+      <div class="rec-card">
+        <h3>Improve digital presence</h3>
+        <ul>
+          <li>63.9% of GiG opportunities lack published pricing. Price transparency is critical for new golfers.</li>
+          <li>50.4% have no specific schedule. "Contact venue" is a significant barrier for someone considering trying golf.</li>
+          <li>Better online information directly reduces friction for first-time participants.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="brand">
+      <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+    </div>
+    <p>&copy; 2026 Played. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// ── Chart.js defaults ──
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.font.family = "'Plus Jakarta Sans', system-ui, sans-serif";
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.scale.grid.color = 'rgba(255,255,255,.06)';
+
+const CORAL = '#E85D6C';
+const CORAL_A = 'rgba(232,93,108,.7)';
+const GRAY = '#4b5563';
+const GREEN = '#34d399';
+const AMBER = '#fbbf24';
+const BLUE = '#60a5fa';
+const PURPLE = '#a78bfa';
+
+// ── Animated counters ──
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.count);
+  const suffix = el.dataset.suffix || '';
+  const decimals = parseInt(el.dataset.decimals) || (suffix === '%' ? 1 : 0);
+  const duration = 1200;
+  const start = performance.now();
+  function update(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    const val = target * ease;
+    if (decimals > 0) {
+      el.textContent = val.toFixed(decimals) + suffix;
+    } else {
+      el.textContent = Math.round(val).toLocaleString() + suffix;
+    }
+    if (t < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ── Intersection Observer for reveals + counters + progress bars ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      // Animate counters inside
+      entry.target.querySelectorAll('[data-count]').forEach(el => {
+        if (!el._animated) { el._animated = true; animateCounter(el); }
+      });
+      // Animate progress bars inside
+      entry.target.querySelectorAll('.progress-fill').forEach(bar => {
+        if (!bar._animated) {
+          bar._animated = true;
+          const maxVal = parseFloat(bar.dataset.max) || 100;
+          const w = parseFloat(bar.dataset.width);
+          setTimeout(() => { bar.style.width = (w / maxVal * 100) + '%'; }, 200);
+        }
+      });
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Tabs ──
+// ── Breakdown chart configs (lazy-init for hidden tabs) ──
+const chartConfigs = {
+  category: {
+    el: 'chartCategory',
+    config: {
+      type: 'bar',
+      data: {
+        labels: ['Programme', 'Coaching', 'Membership', 'Play'],
+        datasets: [{
+          data: [2819, 1708, 788, 258],
+          backgroundColor: [CORAL, CORAL_A, AMBER, BLUE],
+          borderRadius: 6, barThickness: 36
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        scales: { x: { ticks: { callback: v => v.toLocaleString() } }, y: { grid: { display: false } } },
+        plugins: { tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString() + ' opportunities' } } }
+      }
+    }
+  },
+  programme: {
+    el: 'chartProgramme',
+    config: {
+      type: 'bar',
+      data: {
+        labels: ['Junior Programme','Group Coaching','Beginner Programme','Membership','Taster','Women\'s Programme','Holiday Camp','Competition','Social Golf','Family Golf','Senior Programme','Inclusive','Clinic'],
+        datasets: [{
+          data: [1683,1237,936,753,229,229,187,134,99,28,21,20,17],
+          backgroundColor: CORAL, borderRadius: 4, barThickness: 20
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        scales: { x: { ticks: { callback: v => v.toLocaleString() } }, y: { grid: { display: false } } },
+        plugins: { tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString() + ' opportunities' } } }
+      }
+    }
+  },
+  audience: {
+    el: 'chartAudience',
+    config: {
+      type: 'bar',
+      data: {
+        labels: ['Mixed Juniors','All Ages (Mixed)','Female Adults','All Ages (Female)','Mixed Adults','Seniors','Girl Juniors','Families','Male Adults','Boy Juniors'],
+        datasets: [{
+          data: [2793,1509,471,275,236,166,106,44,18,5],
+          backgroundColor: CORAL, borderRadius: 4, barThickness: 22
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        scales: { x: { ticks: { callback: v => v.toLocaleString() } }, y: { grid: { display: false } } },
+        plugins: { tooltip: { callbacks: { label: ctx => ctx.raw.toLocaleString() + ' opportunities' } } }
+      }
+    }
+  }
+};
+
+const charts = {};
+
+function initChart(key) {
+  if (charts[key]) return;
+  const cfg = chartConfigs[key];
+  if (!cfg) return;
+  charts[key] = new Chart(document.getElementById(cfg.el), cfg.config);
+}
+
+// Init the visible tab immediately
+initChart('category');
+
+// Tab switching with lazy chart init
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    const key = tab.dataset.tab;
+    // Small delay to let display:block take effect before Chart.js measures container
+    setTimeout(() => initChart(key), 80);
+  });
+});
+
+// GiG depth per venue
+new Chart(document.getElementById('venueDepth'), {
+  type: 'bar',
+  data: {
+    labels: ['0', '1-2', '3-5', '6-10', '10+'],
+    datasets: [{
+      label: 'Venues',
+      data: [606, 338, 436, 314, 114],
+      backgroundColor: ['rgba(255,255,255,.12)', CORAL, CORAL, CORAL, CORAL],
+      borderRadius: 6,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { callback: v => v } },
+      y: { grid: { display: false } }
+    },
+    plugins: {
+      tooltip: { callbacks: { title: ctx => ctx[0].label + ' opportunities', label: ctx => ctx.raw.toLocaleString() + ' venues' } }
+    }
+  }
+});
+
+// Pricing by category
+new Chart(document.getElementById('chartPricing'), {
+  type: 'bar',
+  data: {
+    labels: ['Membership', 'Programme', 'Coaching', 'Play'],
+    datasets: [{
+      label: 'Median price (£)',
+      data: [135, 50, 20, 10],
+      backgroundColor: [CORAL, CORAL_A, AMBER, BLUE],
+      borderRadius: 6,
+      barThickness: 36
+    }]
+  },
+  options: {
+    scales: {
+      y: { grid: { color: 'rgba(255,255,255,.06)' }, ticks: { callback: v => '£' + v } },
+      x: { grid: { display: false } }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => '£' + ctx.raw + ' median' } }
+    }
+  }
+});
+
+// ── Regional Table ──
+const regionData = [
+  { region:'Yorkshire', total:155, gig:121, coverage:78.1, opps:572, avg:4.7 },
+  { region:'Surrey', total:93, gig:74, coverage:79.6, opps:414, avg:5.6 },
+  { region:'Lancashire', total:96, gig:77, coverage:80.2, opps:367, avg:4.8 },
+  { region:'Hertfordshire', total:65, gig:54, coverage:83.1, opps:290, avg:5.4 },
+  { region:'Cheshire', total:63, gig:53, coverage:84.1, opps:260, avg:4.9 },
+  { region:'Kent', total:75, gig:61, coverage:81.3, opps:245, avg:4.0 },
+  { region:'Hampshire', total:53, gig:43, coverage:81.1, opps:223, avg:5.2 },
+  { region:'Essex', total:63, gig:50, coverage:79.4, opps:216, avg:4.3 },
+  { region:'Sussex', total:46, gig:36, coverage:78.3, opps:183, avg:5.1 },
+  { region:'Devon', total:35, gig:26, coverage:74.3, opps:147, avg:5.7 },
+  { region:'West Midlands', total:34, gig:25, coverage:73.5, opps:135, avg:5.4 },
+  { region:'Lincolnshire', total:39, gig:30, coverage:76.9, opps:135, avg:4.5 },
+  { region:'Suffolk', total:28, gig:23, coverage:82.1, opps:132, avg:5.7 },
+  { region:'Somerset', total:27, gig:21, coverage:77.8, opps:130, avg:6.2 },
+  { region:'Buckinghamshire', total:35, gig:25, coverage:71.4, opps:121, avg:4.8 },
+  { region:'Derbyshire', total:32, gig:24, coverage:75.0, opps:119, avg:5.0 },
+  { region:'Berkshire', total:33, gig:23, coverage:69.7, opps:114, avg:5.0 },
+  { region:'Leicestershire', total:23, gig:20, coverage:87.0, opps:114, avg:5.7 },
+  { region:'Gloucestershire', total:29, gig:23, coverage:79.3, opps:105, avg:4.6 },
+  { region:'Dorset', total:30, gig:22, coverage:73.3, opps:100, avg:4.5 },
+  { region:'Cumbria', total:27, gig:20, coverage:74.1, opps:89, avg:4.5 },
+  { region:'Middlesex', total:28, gig:24, coverage:85.7, opps:88, avg:3.7 },
+  { region:'Staffordshire', total:32, gig:23, coverage:71.9, opps:86, avg:3.7 },
+  { region:'Shropshire', total:22, gig:18, coverage:81.8, opps:85, avg:4.7 },
+  { region:'Wiltshire', total:25, gig:20, coverage:80.0, opps:81, avg:4.0 },
+  { region:'Nottinghamshire', total:32, gig:21, coverage:65.6, opps:77, avg:3.7 },
+  { region:'County Durham', total:31, gig:23, coverage:74.2, opps:77, avg:3.3 },
+  { region:'Northumberland', total:31, gig:23, coverage:74.2, opps:75, avg:3.3 },
+  { region:'Cambridgeshire', total:19, gig:17, coverage:89.5, opps:74, avg:4.4 },
+  { region:'Warwickshire', total:24, gig:17, coverage:70.8, opps:69, avg:4.1 },
+  { region:'Oxfordshire', total:21, gig:17, coverage:81.0, opps:68, avg:4.0 },
+  { region:'Worcestershire', total:20, gig:17, coverage:85.0, opps:63, avg:3.7 },
+  { region:'Bedfordshire', total:18, gig:14, coverage:77.8, opps:62, avg:4.4 },
+  { region:'Merseyside', total:36, gig:21, coverage:58.3, opps:62, avg:3.0 },
+  { region:'Norfolk', total:28, gig:21, coverage:75.0, opps:62, avg:3.0 },
+  { region:'Cornwall', total:32, gig:19, coverage:59.4, opps:60, avg:3.2 },
+  { region:'Greater Manchester', total:14, gig:11, coverage:78.6, opps:55, avg:5.0 },
+  { region:'Northamptonshire', total:18, gig:14, coverage:77.8, opps:55, avg:3.9 },
+  { region:'Isle of Man', total:8, gig:7, coverage:87.5, opps:33, avg:4.7 },
+  { region:'Tyne and Wear', total:7, gig:6, coverage:85.7, opps:33, avg:5.5 },
+  { region:'Herefordshire', total:8, gig:5, coverage:62.5, opps:26, avg:5.2 },
+  { region:'Channel Islands', total:7, gig:5, coverage:71.4, opps:25, avg:5.0 },
+];
+
+let currentSort = 'opportunities';
+let sortAsc = false;
+
+function renderTable(filter) {
+  const body = document.getElementById('regionBody');
+  let data = [...regionData];
+  if (filter) {
+    const q = filter.toLowerCase();
+    data = data.filter(r => r.region.toLowerCase().includes(q));
+  }
+  data.sort((a, b) => {
+    const key = currentSort === 'coverage' ? 'coverage' : 'opps';
+    return sortAsc ? a[key] - b[key] : b[key] - a[key];
+  });
+  body.innerHTML = data.map(r => `
+    <tr>
+      <td style="font-weight:500">${r.region}</td>
+      <td>${r.total}</td>
+      <td>${r.gig}</td>
+      <td><div class="coverage-bar"><div class="bar"><div class="fill" style="width:${r.coverage}%"></div></div><div class="pct">${r.coverage}%</div></div></td>
+      <td style="font-weight:600;color:var(--coral)">${r.opps}</td>
+      <td>${r.avg}</td>
+    </tr>
+  `).join('');
+}
+
+renderTable();
+
+document.getElementById('regionSearch').addEventListener('input', e => renderTable(e.target.value));
+
+document.getElementById('sortOpp').addEventListener('click', function() {
+  currentSort = 'opportunities';
+  sortAsc = !sortAsc;
+  this.classList.add('active');
+  document.getElementById('sortCov').classList.remove('active');
+  renderTable(document.getElementById('regionSearch').value);
+});
+
+document.getElementById('sortCov').addEventListener('click', function() {
+  currentSort = 'coverage';
+  sortAsc = !sortAsc;
+  this.classList.add('active');
+  document.getElementById('sortOpp').classList.remove('active');
+  renderTable(document.getElementById('regionSearch').value);
+});
+
+</script>
+</body>
+</html>
