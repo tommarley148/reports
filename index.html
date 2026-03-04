@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Short Breaks Commissioning Report - Norfolk County Council | Played</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1e;--surface:#2a2a2b;--surface2:#333335;
+  --coral:#E85D6C;--coral-dim:rgba(232,93,108,.15);
+  --text:#ffffff;--text-secondary:#9ca3af;--text-tertiary:#6b7280;
+  --green:#34d399;--amber:#fbbf24;--blue:#60a5fa;
+  --radius:12px;--radius-sm:8px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* Fade-in animation */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* Header */
+.header{padding:48px 0 24px;border-bottom:1px solid var(--surface2)}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+.logo img{height:40px;width:auto}
+.header-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--coral-dim);color:var(--coral);
+  font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.report-title{font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.1;margin-bottom:8px}
+.report-subtitle{font-size:16px;color:var(--text-secondary);margin-bottom:4px}
+.report-meta{font-size:13px;color:var(--text-tertiary);margin-top:12px}
+
+/* Sections */
+section{padding:64px 0}
+.section-label{
+  font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--coral);margin-bottom:8px;
+}
+.section-title{font-size:clamp(24px,3vw,36px);font-weight:700;margin-bottom:16px}
+.section-desc{color:var(--text-secondary);font-size:15px;margin-bottom:32px}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.kpi-card{background:var(--surface);padding:28px 24px;border-radius:var(--radius)}
+.kpi-value{font-size:clamp(36px,4vw,52px);font-weight:800;line-height:1.1;margin-bottom:4px}
+.kpi-label{font-size:14px;color:var(--text-secondary);line-height:1.4}
+.kpi-sub{font-size:12px;color:var(--text-tertiary);margin-top:4px}
+
+/* Utilisation bar in KPI card */
+.util-bar-wrap{margin-top:12px}
+.util-bar{height:10px;background:var(--surface2);border-radius:5px;overflow:hidden}
+.util-bar-fill{height:100%;border-radius:5px;background:var(--coral);transition:width 1.2s ease;width:0}
+.util-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-tertiary);margin-top:4px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--surface);border-radius:var(--radius-sm);padding:4px;width:fit-content}
+.tab{
+  padding:8px 20px;border-radius:6px;font-size:14px;font-weight:500;
+  cursor:pointer;color:var(--text-secondary);background:transparent;border:none;
+  transition:all .2s;font-family:inherit;
+}
+.tab.active{background:var(--coral);color:var(--text)}
+.tab:hover:not(.active){color:var(--text)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Chart containers */
+.chart-container{background:var(--surface);border-radius:var(--radius);padding:24px}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.chart-box{background:var(--surface);border-radius:var(--radius);padding:24px}
+.chart-box h3{font-size:16px;font-weight:600;margin-bottom:16px}
+.chart-box canvas{width:100%!important}
+
+/* Progress bars */
+.progress-item{margin-bottom:14px}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
+.progress-header .label{color:var(--text);font-weight:500}
+.progress-header .value{color:var(--text-secondary)}
+.progress-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width 1.2s ease;width:0}
+.progress-fill.coral{background:var(--coral)}
+.progress-fill.green{background:var(--green)}
+.progress-fill.amber{background:var(--amber)}
+.progress-fill.blue{background:var(--blue)}
+
+/* Stat highlight */
+.stat-highlight{
+  display:flex;align-items:center;gap:24px;
+  background:var(--surface);border-radius:var(--radius);padding:32px;
+  border-left:4px solid var(--coral);margin-bottom:24px;
+}
+.stat-highlight .num{font-size:48px;font-weight:800;color:var(--text);white-space:nowrap}
+.stat-highlight .desc{font-size:15px;color:var(--text-secondary)}
+
+/* Venue list (provider list) */
+.venue-list{display:flex;flex-direction:column;gap:8px}
+.venue-item{
+  display:flex;align-items:center;gap:16px;
+  background:var(--surface);border-radius:var(--radius-sm);padding:16px 20px;
+}
+.venue-rank{
+  width:32px;height:32px;border-radius:50%;background:var(--coral-dim);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--coral);flex-shrink:0;
+}
+.venue-name{flex:1;font-size:14px;font-weight:500}
+.venue-meta{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+.venue-count{font-size:20px;font-weight:700;color:var(--coral)}
+.venue-count span{font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px}
+
+/* Summary cards */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.summary-card{background:var(--surface);border-radius:var(--radius);padding:24px}
+.summary-card h3{font-size:15px;font-weight:600;margin-bottom:12px}
+.summary-card .metric{font-size:32px;font-weight:800;margin-bottom:4px}
+.summary-card .detail{font-size:13px;color:var(--text-secondary);line-height:1.5}
+
+/* Footer */
+.footer{
+  padding:48px 0;border-top:1px solid var(--surface2);
+  text-align:center;color:var(--text-tertiary);font-size:13px;
+}
+.footer .brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.footer .brand img{height:24px;width:auto}
+.footer .brand span{font-weight:600;color:var(--text-secondary)}
+
+/* Date filter */
+.date-select{
+  background:var(--surface);border:1px solid var(--surface2);border-radius:var(--radius-sm);
+  padding:8px 32px 8px 12px;font-size:14px;font-weight:500;color:var(--text);
+  font-family:inherit;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+.date-select:focus{outline:none;border-color:var(--coral)}
+.date-select option{background:var(--surface);color:var(--text)}
+.date-custom-row{
+  display:none;align-items:center;gap:8px;
+}
+.date-custom-row.visible{display:flex}
+.date-input{
+  background:var(--bg);border:1px solid var(--surface2);border-radius:6px;
+  padding:5px 10px;color:var(--text);font-size:13px;font-family:inherit;
+  color-scheme:dark;
+}
+.date-input:focus{outline:none;border-color:var(--coral)}
+
+/* Responsive */
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-row{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr}
+  .header-top{flex-direction:column;align-items:flex-start;gap:12px}
+}
+@media(max-width:600px){
+  .kpi-grid{grid-template-columns:1fr}
+  .tabs{flex-wrap:wrap}
+}
+
+/* Print stylesheet */
+@media print{
+  body{background:#fff;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .container{max-width:100%}
+  .date-select,.date-custom-row{display:none!important}
+  .reveal{opacity:1!important;transform:none!important}
+  .header{padding:24px 0 12px}
+  section{padding:32px 0}
+  .kpi-card,.chart-box,.summary-card,.rec-card,.venue-item,.stat-highlight,.chart-container{
+    background:#f9f9f9!important;border:1px solid #e5e5e5;
+  }
+  .kpi-value,.venue-count,.stat-highlight .num,.summary-card .metric{color:#000!important}
+  .section-label{color:#E85D6C!important}
+  .progress-bar{background:#e5e5e5!important}
+  canvas{max-height:300px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="container">
+  <header class="header">
+    <div class="header-top">
+      <div class="logo">
+        <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div class="header-badge">Demo Report</div>
+        <select class="date-select" id="dateFilterSelect">
+          <option value="ytd" selected>Year to date</option>
+          <option value="q1">Q1 (Apr - Jun 2025)</option>
+          <option value="q2">Q2 (Jul - Sep 2025)</option>
+          <option value="q3">Q3 (Oct 2025 - Feb 2026)</option>
+          <option value="custom">Custom range...</option>
+        </select>
+        <div class="date-custom-row" id="dateCustomRow">
+          <input type="month" class="date-input" id="dateFrom" value="2025-04" min="2025-04" max="2026-02">
+          <span style="color:var(--text-tertiary);font-size:13px">to</span>
+          <input type="month" class="date-input" id="dateTo" value="2026-02" min="2025-04" max="2026-02">
+        </div>
+      </div>
+    </div>
+    <h1 class="report-title">Short Breaks Commissioning Report</h1>
+    <p class="report-subtitle">Norfolk County Council</p>
+    <p class="report-subtitle" style="color:var(--text-tertiary)">Financial Year 2025/26 (April 2025 to February 2026, 11 months of data). Tracking credit allocation, provider activity, and family engagement across the Short Breaks programme.</p>
+    <p class="report-meta">Data as of 28 February 2026.</p>
+  </header>
+</div>
+
+<!-- SECTION 1: EXECUTIVE KPIs -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Overview</p>
+    <h2 class="section-title reveal">Programme at a glance</h2>
+    <div class="kpi-grid reveal">
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="714">0</div>
+        <div class="kpi-label">Active families</div>
+        <div class="kpi-sub">Registered and allocated credits this year</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="34">0</div>
+        <div class="kpi-label">Active providers</div>
+        <div class="kpi-sub">Delivering across 7 Norfolk districts</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="2847">0</div>
+        <div class="kpi-label">Activity packages booked</div>
+        <div class="kpi-sub">Across 54 activity types</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="5">0</div>
+        <div class="kpi-label">Avg credits per offering</div>
+        <div class="kpi-sub">Average cost of a single activity package</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="35700" data-prefix="">0</div>
+        <div class="kpi-label">Credits allocated</div>
+        <div class="kpi-sub">Average 50 per family</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="26025">0</div>
+        <div class="kpi-label">Credits used</div>
+        <div class="kpi-sub">72.9% utilisation rate</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="72.9" data-suffix="%">0</div>
+        <div class="kpi-label">Credit utilisation rate</div>
+        <div class="util-bar-wrap">
+          <div class="util-bar"><div class="util-bar-fill" data-width="72.9"></div></div>
+          <div class="util-bar-label"><span>0%</span><span>100%</span></div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="6.3" data-suffix="%">0</div>
+        <div class="kpi-label">Out-of-window bookings</div>
+        <div class="kpi-sub">179 bookings where the activity extends beyond the credit expiry date</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: CREDIT UTILISATION -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Value for Money</p>
+    <h2 class="section-title reveal">Credit utilisation</h2>
+    <p class="section-desc reveal">Are commissioned services delivering value for money? Tracking how effectively families use their allocated credits across the programme year.</p>
+    <div class="chart-row reveal">
+      <div class="chart-box">
+        <h3>Monthly credit flow (allocated vs used)</h3>
+        <div style="position:relative;height:280px"><canvas id="chartCreditFlow"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Average remaining balance at plan milestones</h3>
+        <div style="position:relative;height:280px"><canvas id="chartMilestones"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-box reveal" style="margin-top:24px">
+      <h3>Utilisation by district</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">Districts below 65% are flagged for targeted family engagement.</p>
+      <div>
+        <div class="progress-item"><div class="progress-header"><span class="label">Norwich</span><span class="value">81.2%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="81.2"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">Broadland</span><span class="value">78.4%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="78.4"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">South Norfolk</span><span class="value">75.1%</span></div><div class="progress-bar"><div class="progress-fill green" data-width="75.1"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">Breckland</span><span class="value">71.3%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="71.3"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">King's Lynn &amp; West Norfolk</span><span class="value">68.7%</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="68.7"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">North Norfolk</span><span class="value">62.4%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="62.4"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">Great Yarmouth</span><span class="value">58.9%</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="58.9"></div></div></div>
+      </div>
+    </div>
+    <div class="stat-highlight reveal" style="margin-top:24px;border-left-color:var(--amber)">
+      <div class="num">6.3%</div>
+      <div class="desc">of bookings (179 of 2,847) are for activities that extend beyond the family's credit expiry date. Families cannot book after expiry, but some activities run over several months and naturally span the boundary. Flagging these at the point of booking would help families make informed choices about longer-running activities near the end of their credit window.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: PROVIDER & ACTIVITY LANDSCAPE -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Market Shaping</p>
+    <h2 class="section-title reveal">Provider &amp; activity landscape</h2>
+    <p class="section-desc reveal">Are we shaping the market effectively? Mapping the breadth and depth of provision across activity types, districts, and providers.</p>
+    <div class="reveal">
+      <div class="tabs">
+        <button class="tab active" data-tab="category">By category</button>
+        <button class="tab" data-tab="district">By district</button>
+        <button class="tab" data-tab="providers">Top providers</button>
+      </div>
+      <div class="tab-panel active" id="panel-category">
+        <div class="chart-container"><div style="position:relative;height:260px"><canvas id="chartCategory"></canvas></div></div>
+      </div>
+      <div class="tab-panel" id="panel-district">
+        <div class="chart-container"><div style="position:relative;height:300px"><canvas id="chartDistrict"></canvas></div></div>
+      </div>
+      <div class="tab-panel" id="panel-providers">
+        <div class="venue-list">
+          <div class="venue-item"><div class="venue-rank">1</div><div class="venue-name">Active Norfolk CIC<div class="venue-meta">Sports &amp; physical, Outdoor &amp; adventure</div></div><div class="venue-count">187<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">2</div><div class="venue-name">Norwich Arts Centre<div class="venue-meta">Arts &amp; creative</div></div><div class="venue-count">156<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">3</div><div class="venue-name">The Benjamin Foundation<div class="venue-meta">Social clubs, Holiday schemes</div></div><div class="venue-count">142<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">4</div><div class="venue-name">Break Charity<div class="venue-meta">Outdoor &amp; adventure, Social clubs</div></div><div class="venue-count">131<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">5</div><div class="venue-name">YMCA Norfolk<div class="venue-meta">Sports &amp; physical, Social clubs</div></div><div class="venue-count">118<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">6</div><div class="venue-name">Autism Anglia<div class="venue-meta">Therapeutic, Social clubs</div></div><div class="venue-count">104<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">7</div><div class="venue-name">East Coast Surf School<div class="venue-meta">Sports &amp; physical, Outdoor &amp; adventure</div></div><div class="venue-count">97<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">8</div><div class="venue-name">Norfolk &amp; Norwich Music School<div class="venue-meta">Arts &amp; creative</div></div><div class="venue-count">89<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">9</div><div class="venue-name">Holt Youth Project<div class="venue-meta">Holiday schemes, Social clubs</div></div><div class="venue-count">82<span>bookings</span></div></div>
+          <div class="venue-item"><div class="venue-rank">10</div><div class="venue-name">Creative Arts East<div class="venue-meta">Arts &amp; creative, Therapeutic</div></div><div class="venue-count">76<span>bookings</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="stat-highlight reveal" style="margin-top:24px">
+      <div class="num">54</div>
+      <div class="desc">activity types across 34 providers. Six categories of provision ensure families can choose activities that match their child's interests and needs, from sports and physical activity through to arts, therapeutic support, and holiday schemes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: FAMILY ENGAGEMENT -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Robust Data</p>
+    <h2 class="section-title reveal">Family engagement</h2>
+    <p class="section-desc reveal">Are decisions informed by robust data? Understanding how families engage with the programme, tracking new registrations, repeat bookings, and district-level participation.</p>
+    <div class="chart-row reveal">
+      <div class="chart-box">
+        <h3>Monthly participation (new vs returning families)</h3>
+        <div style="position:relative;height:280px"><canvas id="chartParticipation"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Families by booking frequency</h3>
+        <div style="position:relative;height:280px"><canvas id="chartFrequency"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-box reveal" style="margin-top:24px">
+      <h3>Family engagement by district</h3>
+      <div style="margin-top:12px">
+        <div class="progress-item"><div class="progress-header"><span class="label">Norwich</span><span class="value">186 families (26.1%)</span></div><div class="progress-bar"><div class="progress-fill green" data-width="86"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">Broadland</span><span class="value">118 families (16.5%)</span></div><div class="progress-bar"><div class="progress-fill green" data-width="54"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">South Norfolk</span><span class="value">112 families (15.7%)</span></div><div class="progress-bar"><div class="progress-fill green" data-width="52"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">Breckland</span><span class="value">89 families (12.5%)</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="41"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">King's Lynn &amp; West Norfolk</span><span class="value">82 families (11.5%)</span></div><div class="progress-bar"><div class="progress-fill amber" data-width="38"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">North Norfolk</span><span class="value">68 families (9.5%)</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="31"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="label">Great Yarmouth</span><span class="value">59 families (8.3%)</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="27"></div></div></div>
+      </div>
+    </div>
+    <div class="stat-highlight reveal" style="margin-top:24px;border-left-color:var(--coral)">
+      <div class="num">87</div>
+      <div class="desc">families (12.2%) have been allocated credits but have not yet booked any activities. Targeted outreach to these families could improve utilisation and ensure children are benefiting from the programme. 41 of these families are in Great Yarmouth and North Norfolk.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: BOOKINGS OVER TIME -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Trends</p>
+    <h2 class="section-title reveal">Bookings over time</h2>
+    <p class="section-desc reveal">Monthly booking volumes and credit spend, showing seasonal patterns and programme momentum.</p>
+    <div class="chart-box reveal">
+      <h3>Monthly bookings and credit spend</h3>
+      <div style="position:relative;height:320px"><canvas id="chartBookings"></canvas></div>
+    </div>
+    <div class="summary-grid reveal" style="margin-top:24px">
+      <div class="summary-card">
+        <h3>Avg bookings per family</h3>
+        <div class="metric" data-count="4.0" data-decimals="1">0</div>
+        <div class="detail">Families average 4.0 activity bookings each across the programme year so far.</div>
+      </div>
+      <div class="summary-card">
+        <h3>Most popular month</h3>
+        <div class="metric" style="font-size:28px">August</div>
+        <div class="detail">School holidays drive the highest booking volume, with 412 packages booked in August 2025.</div>
+      </div>
+      <div class="summary-card">
+        <h3>Busiest day</h3>
+        <div class="metric" style="font-size:28px">Saturday</div>
+        <div class="detail">38% of all bookings are for Saturday activities, followed by Wednesday (18%) and Sunday (14%).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="brand">
+      <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+    </div>
+    <p>&copy; 2026 Played. All rights reserved. This report contains demo data for illustration purposes.</p>
+  </div>
+</footer>
+
+<script>
+// ── Chart.js defaults ──
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.font.family = "'Plus Jakarta Sans', system-ui, sans-serif";
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.scale.grid.color = 'rgba(255,255,255,.06)';
+
+const CORAL = '#E85D6C';
+const CORAL_A = 'rgba(232,93,108,.7)';
+const GRAY = '#4b5563';
+const GREEN = '#34d399';
+const AMBER = '#fbbf24';
+const BLUE = '#60a5fa';
+const PURPLE = '#a78bfa';
+
+// ── Mock data ──
+const months = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'];
+
+// Credit utilisation monthly (cumulative)
+const creditsAllocated = [3250,6500,9750,13000,16250,19500,22750,26000,29250,32500,35700];
+const creditsUsed =      [1180,2970,5200,8225,11900,14860,17540,19910,22010,24120,26025];
+
+// Milestone balances (average remaining per family at 0,3,6,9,12 months)
+const milestoneLabels = ['Start','3 months','6 months','9 months','12 months'];
+const milestoneData = [50, 39, 26, 16, 8];
+
+// Monthly participation
+const newFamilies =       [142, 89, 67, 54, 38, 41, 52, 34, 28, 22, 18];
+const returningFamilies = [0, 98, 146, 189, 234, 248, 261, 272, 279, 284, 289];
+
+// Booking frequency distribution
+const freqLabels = ['0 bookings','1-2','3-5','6-10','10+'];
+const freqData = [87, 164, 218, 167, 78];
+
+// Monthly bookings
+const monthlyBookings = [168, 214, 247, 298, 412, 324, 286, 248, 212, 134, 104];
+const monthlyCredits =  [1180, 1790, 2230, 3025, 3675, 2960, 2680, 2370, 2100, 2110, 1905];
+
+// ── Date filter ──
+const dateRanges = {
+  ytd:  { from: 0, to: 10, label: 'Apr 2025 \u2013 Feb 2026' },
+  q1:   { from: 0, to: 2,  label: 'Apr \u2013 Jun 2025' },
+  q2:   { from: 3, to: 5,  label: 'Jul \u2013 Sep 2025' },
+  q3:   { from: 6, to: 10, label: 'Oct 2025 \u2013 Feb 2026' }
+};
+
+const monthIndex = {'2025-04':0,'2025-05':1,'2025-06':2,'2025-07':3,'2025-08':4,'2025-09':5,'2025-10':6,'2025-11':7,'2025-12':8,'2026-01':9,'2026-02':10};
+
+let activeRange = 'ytd';
+
+function getSelectedRange() {
+  if (activeRange === 'custom') {
+    const f = monthIndex[document.getElementById('dateFrom').value] ?? 0;
+    const t = monthIndex[document.getElementById('dateTo').value] ?? 10;
+    return { from: Math.min(f, t), to: Math.max(f, t) };
+  }
+  return dateRanges[activeRange];
+}
+
+function updateReportMeta() {
+  const r = getSelectedRange();
+  const monthsFull = ['April 2025','May 2025','June 2025','July 2025','August 2025','September 2025','October 2025','November 2025','December 2025','January 2026','February 2026'];
+  const count = r.to - r.from + 1;
+  const label = monthsFull[r.from] + ' to ' + monthsFull[r.to];
+  document.querySelector('.report-meta').textContent = 'Showing ' + count + ' month' + (count !== 1 ? 's' : '') + ': ' + label + '.';
+}
+
+// Date dropdown
+document.getElementById('dateFilterSelect').addEventListener('change', function() {
+  const val = this.value;
+  activeRange = val;
+  const customRow = document.getElementById('dateCustomRow');
+  if (val === 'custom') {
+    customRow.classList.add('visible');
+  } else {
+    customRow.classList.remove('visible');
+  }
+  updateReportMeta();
+});
+document.getElementById('dateFrom').addEventListener('change', updateReportMeta);
+document.getElementById('dateTo').addEventListener('change', updateReportMeta);
+
+// ── Animated counters ──
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.count);
+  const suffix = el.dataset.suffix || '';
+  const decimals = parseInt(el.dataset.decimals) || (suffix === '%' ? 1 : 0);
+  const duration = 1200;
+  const start = performance.now();
+  function update(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    const val = target * ease;
+    if (decimals > 0) {
+      el.textContent = val.toFixed(decimals) + suffix;
+    } else {
+      el.textContent = Math.round(val).toLocaleString() + suffix;
+    }
+    if (t < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+// ── Intersection Observer for reveals + counters + progress bars ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      entry.target.querySelectorAll('[data-count]').forEach(el => {
+        if (!el._animated) { el._animated = true; animateCounter(el); }
+      });
+      entry.target.querySelectorAll('.progress-fill').forEach(bar => {
+        if (!bar._animated) {
+          bar._animated = true;
+          const maxVal = parseFloat(bar.dataset.max) || 100;
+          const w = parseFloat(bar.dataset.width);
+          setTimeout(() => { bar.style.width = (w / maxVal * 100) + '%'; }, 200);
+        }
+      });
+      // Animate utilisation bar
+      entry.target.querySelectorAll('.util-bar-fill').forEach(bar => {
+        if (!bar._animated) {
+          bar._animated = true;
+          const w = parseFloat(bar.dataset.width);
+          setTimeout(() => { bar.style.width = w + '%'; }, 200);
+        }
+      });
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Charts ──
+
+// Section 2: Credit utilisation over time
+new Chart(document.getElementById('chartCreditFlow'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: 'Credits allocated (cumulative)',
+        data: creditsAllocated,
+        borderColor: BLUE,
+        backgroundColor: 'rgba(96,165,250,.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        borderWidth: 2
+      },
+      {
+        label: 'Credits used (cumulative)',
+        data: creditsUsed,
+        borderColor: CORAL,
+        backgroundColor: 'rgba(232,93,108,.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        borderWidth: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true, position: 'top', labels: { boxWidth: 12, padding: 16 } },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw.toLocaleString() } }
+    },
+    scales: {
+      y: { ticks: { callback: v => v.toLocaleString() } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+// Section 2: Milestone balances
+new Chart(document.getElementById('chartMilestones'), {
+  type: 'bar',
+  data: {
+    labels: milestoneLabels,
+    datasets: [{
+      label: 'Avg remaining credits',
+      data: milestoneData,
+      backgroundColor: [BLUE, GREEN, AMBER, CORAL_A, CORAL],
+      borderRadius: 6,
+      barThickness: 40
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { beginAtZero: true, max: 60, ticks: { callback: v => v + ' credits' } },
+      x: { grid: { display: false } }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.raw + ' credits remaining (avg)' } }
+    }
+  }
+});
+
+// Section 3: Category / district charts (lazy init via tabs)
+const chartConfigs = {
+  category: {
+    el: 'chartCategory',
+    config: {
+      type: 'bar',
+      data: {
+        labels: ['Sports & physical','Arts & creative','Outdoor & adventure','Social clubs','Therapeutic','Holiday schemes'],
+        datasets: [{
+          data: [18, 12, 8, 7, 5, 4],
+          backgroundColor: [CORAL, BLUE, GREEN, AMBER, PURPLE, CORAL_A],
+          borderRadius: 6,
+          barThickness: 28
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        scales: {
+          x: { beginAtZero: true, ticks: { stepSize: 5 }, title: { display: true, text: 'Number of activity packages', color: '#6b7280', font: { size: 12 } } },
+          y: { grid: { display: false } }
+        },
+        plugins: { tooltip: { callbacks: { label: ctx => ctx.raw + ' packages available' } } }
+      }
+    }
+  },
+  district: {
+    el: 'chartDistrict',
+    config: {
+      type: 'bar',
+      data: {
+        labels: ['Norwich','Broadland','South Norfolk','Breckland','King\'s Lynn & W. Norfolk','North Norfolk','Great Yarmouth'],
+        datasets: [{
+          label: 'Packages available',
+          data: [16, 11, 10, 8, 5, 4, 3],
+          backgroundColor: CORAL,
+          borderRadius: 6,
+          barThickness: 24
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        scales: {
+          x: { beginAtZero: true, title: { display: true, text: 'Activity packages available', color: '#6b7280', font: { size: 12 } } },
+          y: { grid: { display: false } }
+        },
+        plugins: { tooltip: { callbacks: { label: ctx => ctx.raw + ' packages' } } }
+      }
+    }
+  }
+};
+
+const charts = {};
+
+function initChart(key) {
+  if (charts[key]) return;
+  const cfg = chartConfigs[key];
+  if (!cfg) return;
+  charts[key] = new Chart(document.getElementById(cfg.el), cfg.config);
+}
+
+// Init the visible tab immediately
+initChart('category');
+
+// Tab switching with lazy chart init
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const group = tab.closest('.reveal') || tab.parentElement.parentElement;
+    group.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    group.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    const key = tab.dataset.tab;
+    setTimeout(() => initChart(key), 80);
+  });
+});
+
+// Section 4: Monthly participation (stacked bar)
+new Chart(document.getElementById('chartParticipation'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        label: 'New families',
+        data: newFamilies,
+        backgroundColor: CORAL,
+        borderRadius: { topLeft: 0, topRight: 0, bottomLeft: 6, bottomRight: 6 },
+        barThickness: 24
+      },
+      {
+        label: 'Returning families',
+        data: returningFamilies,
+        backgroundColor: BLUE,
+        borderRadius: { topLeft: 6, topRight: 6, bottomLeft: 0, bottomRight: 0 },
+        barThickness: 24
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { stacked: true, grid: { display: false } },
+      y: { stacked: true, ticks: { callback: v => v } }
+    },
+    plugins: {
+      legend: { display: true, position: 'top', labels: { boxWidth: 12, padding: 16 } },
+      tooltip: { mode: 'index' }
+    }
+  }
+});
+
+// Section 4: Booking frequency histogram
+new Chart(document.getElementById('chartFrequency'), {
+  type: 'bar',
+  data: {
+    labels: freqLabels,
+    datasets: [{
+      label: 'Families',
+      data: freqData,
+      backgroundColor: ['rgba(255,255,255,.12)', CORAL_A, CORAL, GREEN, BLUE],
+      borderRadius: 6,
+      barThickness: 36
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { beginAtZero: true, ticks: { callback: v => v } },
+      x: { grid: { display: false } }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.raw + ' families' } }
+    }
+  }
+});
+
+// Section 5: Monthly bookings with credit overlay
+new Chart(document.getElementById('chartBookings'), {
+  type: 'bar',
+  data: {
+    labels: months,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Bookings',
+        data: monthlyBookings,
+        backgroundColor: CORAL,
+        borderRadius: 6,
+        barThickness: 28,
+        yAxisID: 'y'
+      },
+      {
+        type: 'line',
+        label: 'Credits spent',
+        data: monthlyCredits,
+        borderColor: BLUE,
+        backgroundColor: 'rgba(96,165,250,.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        borderWidth: 2,
+        yAxisID: 'y1'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        position: 'left',
+        title: { display: true, text: 'Bookings', color: '#6b7280', font: { size: 12 } },
+        grid: { color: 'rgba(255,255,255,.06)' }
+      },
+      y1: {
+        beginAtZero: true,
+        position: 'right',
+        title: { display: true, text: 'Credits spent', color: '#6b7280', font: { size: 12 } },
+        grid: { display: false },
+        ticks: { callback: v => v.toLocaleString() }
+      },
+      x: { grid: { display: false } }
+    },
+    plugins: {
+      legend: { display: true, position: 'top', labels: { boxWidth: 12, padding: 16 } },
+      tooltip: {
+        mode: 'index',
+        callbacks: {
+          label: ctx => {
+            if (ctx.dataset.label === 'Credits spent') return ctx.dataset.label + ': ' + ctx.raw.toLocaleString();
+            return ctx.dataset.label + ': ' + ctx.raw;
+          }
+        }
+      }
+    }
+  }
+});
+
+</script>
+</body>
+</html>
