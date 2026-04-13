@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Active Norfolk — Demo Report | Played</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1e;--surface:#2a2a2b;--surface2:#333335;
+  --primary:#00A651;--primary-dim:rgba(0,166,81,.15);
+  --text:#ffffff;--text-secondary:#9ca3af;--text-tertiary:#6b7280;
+  --green:#34d399;--amber:#fbbf24;--blue:#60a5fa;--coral:#E85D6C;
+  --radius:12px;--radius-sm:8px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);
+  line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+.header{padding:48px 0 24px;border-bottom:1px solid var(--surface2)}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+.logo img{height:40px;width:auto}
+.header-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--primary-dim);color:var(--primary);
+  font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.report-title{font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.1;margin-bottom:8px}
+.report-subtitle{font-size:16px;color:var(--text-secondary);margin-bottom:4px}
+.report-meta{font-size:13px;color:var(--text-tertiary);margin-top:12px}
+
+section{padding:64px 0}
+.section-label{
+  font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--primary);margin-bottom:8px;
+}
+.section-title{font-size:clamp(24px,3vw,36px);font-weight:700;margin-bottom:16px}
+.section-desc{color:var(--text-secondary);font-size:15px;margin-bottom:32px;max-width:720px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi-card{background:var(--surface);padding:28px 24px;border-radius:var(--radius)}
+.kpi-value{font-size:clamp(28px,3.5vw,44px);font-weight:800;line-height:1.1;margin-bottom:4px}
+.kpi-label{font-size:14px;color:var(--text-secondary);line-height:1.4}
+.kpi-sub{font-size:12px;color:var(--text-tertiary);margin-top:4px}
+
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.chart-box{background:var(--surface);border-radius:var(--radius);padding:24px}
+.chart-box h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.chart-box .chart-sub{font-size:13px;color:var(--text-tertiary);margin-bottom:16px}
+.chart-box canvas{width:100%!important}
+
+.stat-highlight{
+  display:flex;align-items:center;gap:24px;
+  background:var(--surface);border-radius:var(--radius);padding:32px;
+  border-left:4px solid var(--primary);margin-bottom:24px;
+}
+.stat-highlight .num{font-size:48px;font-weight:800;color:var(--text);white-space:nowrap}
+.stat-highlight .desc{font-size:15px;color:var(--text-secondary)}
+
+.venue-list{display:flex;flex-direction:column;gap:8px}
+.venue-item{
+  display:flex;align-items:center;gap:16px;
+  background:var(--surface);border-radius:var(--radius-sm);padding:16px 20px;
+}
+.venue-rank{
+  width:32px;height:32px;border-radius:50%;background:var(--primary-dim);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;color:var(--primary);flex-shrink:0;
+}
+.venue-name{flex:1;font-size:14px;font-weight:500}
+.venue-meta{font-size:12px;color:var(--text-tertiary);margin-top:2px}
+.venue-count{font-size:20px;font-weight:700;color:var(--primary)}
+.venue-count span{font-size:12px;color:var(--text-tertiary);font-weight:400;margin-left:4px}
+
+.badge{display:inline-flex;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.3px}
+.badge-green{background:rgba(52,211,153,.15);color:#34d399}
+.badge-amber{background:rgba(251,191,36,.15);color:#fbbf24}
+
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--surface);border-radius:var(--radius-sm);padding:4px;width:fit-content}
+.tab{
+  padding:8px 20px;border-radius:6px;font-size:14px;font-weight:500;
+  cursor:pointer;color:var(--text-secondary);background:transparent;border:none;
+  transition:all .2s;font-family:inherit;
+}
+.tab.active{background:var(--primary);color:var(--text)}
+.tab:hover:not(.active){color:var(--text)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.summary-card{background:var(--surface);border-radius:var(--radius);padding:24px}
+.summary-card h3{font-size:15px;font-weight:600;margin-bottom:12px}
+.summary-card .metric{font-size:32px;font-weight:800;margin-bottom:4px}
+.summary-card .detail{font-size:13px;color:var(--text-secondary);line-height:1.5}
+
+.progress-item{margin-bottom:14px}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
+.progress-header .label{color:var(--text);font-weight:500}
+.progress-header .value{color:var(--text-secondary)}
+.progress-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width 1.2s ease;width:0}
+.progress-fill.primary{background:var(--primary)}
+.progress-fill.blue{background:var(--blue)}
+.progress-fill.amber{background:var(--amber)}
+
+.footer{
+  padding:48px 0;border-top:1px solid var(--surface2);
+  text-align:center;color:var(--text-tertiary);font-size:13px;
+}
+.footer .brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.footer .brand img{height:24px;width:auto}
+.footer .brand span{font-weight:600;color:var(--text-secondary)}
+
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-row{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr}
+  .header-top{flex-direction:column;align-items:flex-start;gap:12px}
+}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr}.tabs{flex-wrap:wrap}}
+@media print{
+  body{background:#fff;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .reveal{opacity:1!important;transform:none!important}
+  .kpi-card,.chart-box,.summary-card,.venue-item,.stat-highlight{background:#f9f9f9!important;border:1px solid #e5e5e5}
+  .kpi-value,.venue-count,.stat-highlight .num,.summary-card .metric{color:#000!important}
+  .section-label{color:#00A651!important}
+  canvas{max-height:300px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="container">
+  <header class="header">
+    <div class="header-top">
+      <div class="logo">
+        <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+      </div>
+      <div class="header-badge">Demo Report</div>
+    </div>
+    <h1 class="report-title">Active Norfolk</h1>
+    <p class="report-subtitle">Activity Intelligence Report</p>
+    <p class="report-subtitle" style="color:var(--text-tertiary)">Provider landscape, Every Move usage analytics, and enrichment pipeline results across Norfolk's 7 districts.</p>
+    <p class="report-meta">Data as of April 2026.</p>
+  </header>
+</div>
+
+<!-- SECTION 1: KPIs -->
+<section>
+  <div class="container">
+    <p class="section-label reveal">Overview</p>
+    <h2 class="section-title reveal">Norfolk at a glance</h2>
+    <div class="kpi-grid reveal">
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="2444">0</div>
+        <div class="kpi-label">Providers discovered</div>
+        <div class="kpi-sub">Organisations delivering physical activity</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="642">0</div>
+        <div class="kpi-label">Places identified</div>
+        <div class="kpi-sub">Venues where activity happens</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="14181">0</div>
+        <div class="kpi-label">Every Move sessions</div>
+        <div class="kpi-sub">Activity finder usage since launch</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" data-count="8754">0</div>
+        <div class="kpi-label">Unique users</div>
+        <div class="kpi-sub">Norfolk residents using Every Move</div>
+      </div>
+    </div>
+    <div class="kpi-grid reveal" style="margin-top:16px">
+      <div class="kpi-card">
+        <div class="kpi-value">75%</div>
+        <div class="kpi-label">Website coverage</div>
+        <div class="kpi-sub">Providers with verified websites</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">97%</div>
+        <div class="kpi-label">Geolocated</div>
+        <div class="kpi-sub">Mappable on search results</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">119</div>
+        <div class="kpi-label">Cricket clubs (ECB)</div>
+        <div class="kpi-sub">Shared with England & Wales Cricket Board</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value">81</div>
+        <div class="kpi-label">Golf venues (EG)</div>
+        <div class="kpi-sub">Shared with England Golf</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: Every Move Usage -->
+<section style="border-top:1px solid var(--surface2)">
+  <div class="container">
+    <p class="section-label reveal">Every Move Norfolk</p>
+    <h2 class="section-title reveal">Activity finder usage</h2>
+    <p class="section-desc reveal">Real analytics from the Every Move Norfolk activity finder, showing how Norfolk residents search for and engage with physical activity.</p>
+
+    <div class="stat-highlight reveal">
+      <div class="num">6,214</div>
+      <div class="desc">Peak monthly sessions (December 2025) — driven by the Big Norfolk Holiday Fun winter programme launch. BNHF activities dominate the top 10 most-clicked sessions.</div>
+    </div>
+
+    <div class="chart-row reveal">
+      <div class="chart-box">
+        <h3>Monthly sessions & users</h3>
+        <p class="chart-sub">Every Move Norfolk since launch</p>
+        <div style="height:280px"><canvas id="chartMonthly"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Search to booking funnel</h3>
+        <p class="chart-sub">Monthly searches → activity views → bookings</p>
+        <div style="height:280px"><canvas id="chartFunnel"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row reveal" style="margin-top:24px">
+      <div class="chart-box">
+        <h3>Most clicked activity types</h3>
+        <p class="chart-sub">What Norfolk residents engage with</p>
+        <div style="height:320px"><canvas id="chartActivityTypes"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Devices</h3>
+        <p class="chart-sub">How people access Every Move</p>
+        <div style="height:320px"><canvas id="chartDevices"></canvas></div>
+      </div>
+    </div>
+
+    <div class="chart-row reveal" style="margin-top:24px">
+      <div class="chart-box">
+        <h3>Referral sources</h3>
+        <p class="chart-sub">How people find the activity finder</p>
+        <div style="height:280px"><canvas id="chartReferrers"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Searches by day of week</h3>
+        <p class="chart-sub">When Norfolk residents search for activities</p>
+        <div style="height:280px"><canvas id="chartByDay"></canvas></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: Most popular sessions -->
+<section style="border-top:1px solid var(--surface2)">
+  <div class="container">
+    <p class="section-label reveal">Engagement</p>
+    <h2 class="section-title reveal">Most popular sessions</h2>
+    <p class="section-desc reveal">The top 10 most-clicked activities on Every Move Norfolk. Big Norfolk Holiday Fun (BNHF) dominates, showing strong digital engagement from families.</p>
+    <div class="venue-list reveal">
+      <div class="venue-item"><div class="venue-rank">1</div><div><div class="venue-name">Norwich City CSF — Carrow Park (BNHF)</div><div class="venue-meta">Norwich, NR1</div></div><div class="venue-count">356<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">2</div><div><div class="venue-name">Whitlingham Winter Adventure Day (BNHF)</div><div class="venue-meta">Norwich</div></div><div class="venue-count">306<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">3</div><div><div class="venue-name">EA Gymnastics Norwich (BNHF)</div><div class="venue-meta">Norwich</div></div><div class="venue-count">304<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">4</div><div><div class="venue-name">Technology & STEM Camp — St Michael's Junior (BNHF)</div><div class="venue-meta">Norwich</div></div><div class="venue-count">301<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">5</div><div><div class="venue-name">EA Gymnastics Great Yarmouth (BNHF)</div><div class="venue-meta">Great Yarmouth</div></div><div class="venue-count">267<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">6</div><div><div class="venue-name">Natural Wonder Magical Theatre Trip (BNHF)</div><div class="venue-meta">Norwich</div></div><div class="venue-count">227<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">7</div><div><div class="venue-name">X Adventure Activities — Christmas Adventure Day (BNHF)</div><div class="venue-meta">Norfolk</div></div><div class="venue-count">223<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">8</div><div><div class="venue-name">The Garage Winter Big Norfolk Holiday Fun</div><div class="venue-meta">Norwich</div></div><div class="venue-count">222<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">9</div><div><div class="venue-name">Victory — Everyone Active Swim Day (BNHF)</div><div class="venue-meta">Norwich</div></div><div class="venue-count">218<span>clicks</span></div></div>
+      <div class="venue-item"><div class="venue-rank">10</div><div><div class="venue-name">UEA Sportspark Holiday Club (BNHF)</div><div class="venue-meta">Norwich</div></div><div class="venue-count">203<span>clicks</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: Provider landscape -->
+<section style="border-top:1px solid var(--surface2)">
+  <div class="container">
+    <p class="section-label reveal">Provider landscape</p>
+    <h2 class="section-title reveal">Who delivers activity in Norfolk</h2>
+    <p class="section-desc reveal">2,444 providers discovered across Norfolk using Google Places, NGB registers (ECB, England Golf), and AI-powered community research.</p>
+
+    <div class="chart-row reveal">
+      <div class="chart-box">
+        <h3>Providers by type</h3>
+        <p class="chart-sub">2,444 organisations classified</p>
+        <div style="height:380px"><canvas id="chartProviderTypes"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <h3>Providers by district</h3>
+        <p class="chart-sub">Distribution across Norfolk's 7 districts</p>
+        <div style="height:380px"><canvas id="chartDistricts"></canvas></div>
+      </div>
+    </div>
+
+    <div class="summary-grid reveal" style="margin-top:24px">
+      <div class="summary-card">
+        <h3>Place Partnerships</h3>
+        <div class="metric" style="color:var(--amber)">2</div>
+        <div class="detail">King's Lynn & West Norfolk and Great Yarmouth — both in the top 10% nationally for inactivity and deprivation. Combined 720+ providers.</div>
+      </div>
+      <div class="summary-card">
+        <h3>Cross-NGB sharing</h3>
+        <div class="metric" style="color:var(--blue)">200</div>
+        <div class="detail">119 cricket clubs shared with ECB, 81 golf venues shared with England Golf. Enriched once, visible to all tenants.</div>
+      </div>
+      <div class="summary-card">
+        <h3>Community providers</h3>
+        <div class="metric" style="color:var(--primary)">72</div>
+        <div class="detail">Discovered through AI research — walking groups, disability sport, falls prevention, youth programmes invisible to Google Maps.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: Enriched profiles -->
+<section style="border-top:1px solid var(--surface2)">
+  <div class="container">
+    <p class="section-label reveal">Deep enrichment</p>
+    <h2 class="section-title reveal">Sample provider profiles</h2>
+    <p class="section-desc reveal">5 Norfolk providers enriched through the full pipeline — Google Places, website scraping, AI profiling, opportunity extraction, and quality gating.</p>
+
+    <div class="venue-list reveal">
+      <div class="venue-item" style="flex-direction:column;align-items:flex-start;gap:12px">
+        <div style="display:flex;align-items:center;gap:16px;width:100%">
+          <div class="venue-rank">1</div>
+          <div style="flex:1"><div class="venue-name" style="font-size:16px">Norwich City Community Sports Foundation</div><div class="venue-meta">Community Charity · Norwich, NR1 1JE · ★ 4.7 (22 reviews)</div></div>
+          <div class="venue-count">29<span>activities</span></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);padding-left:48px">Official charity of Norwich City FC. Cerebral Palsy Football, Duncan's Club (dementia), Disability Soccer Schools, SEND Realising Potential, Girls United, Walking Football, Mini Kickers.</div>
+      </div>
+      <div class="venue-item" style="flex-direction:column;align-items:flex-start;gap:12px">
+        <div style="display:flex;align-items:center;gap:16px;width:100%">
+          <div class="venue-rank">2</div>
+          <div style="flex:1"><div class="venue-name" style="font-size:16px">Riverside Leisure Centre</div><div class="venue-meta">Leisure Centre (Places Leisure) · Norwich, NR1 1WX · ★ 3.9 (534 reviews)</div></div>
+          <div class="venue-count">43<span>activities</span></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);padding-left:48px">Exercise Referral for health conditions, accessible swimming (hoist + wheelchair chair), gym, fitness classes, indoor cycling. Open until 10pm weekdays.</div>
+      </div>
+      <div class="venue-item" style="flex-direction:column;align-items:flex-start;gap:12px">
+        <div style="display:flex;align-items:center;gap:16px;width:100%">
+          <div class="venue-rank">3</div>
+          <div style="flex:1"><div class="venue-name" style="font-size:16px">Alive St James Pool <span class="badge badge-amber">Place Partnership</span></div><div class="venue-meta">Leisure Centre (Alive West Norfolk) · King's Lynn, PE30 1NN · ★ 4.2 (338 reviews)</div></div>
+          <div class="venue-count">21<span>activities</span></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);padding-left:48px">6-lane 25m competition pool, 100+ weekly fitness classes, free Alive Discount Card for concessions. Located in Place Partnership area.</div>
+      </div>
+      <div class="venue-item" style="flex-direction:column;align-items:flex-start;gap:12px">
+        <div style="display:flex;align-items:center;gap:16px;width:100%">
+          <div class="venue-rank">4</div>
+          <div style="flex:1"><div class="venue-name" style="font-size:16px">Royal Cromer Golf Club</div><div class="venue-meta">Golf Club (EG Affiliated) · Cromer, NR27 0JH · ★ 4.7 (429 reviews)</div></div>
+          <div class="venue-count">15<span>activities</span></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);padding-left:48px">Top 100 golf course in England. Founded 1888, one of 66 'Royal' clubs. Fully inclusive: ladies, juniors, veterans sections. Clifftop setting above the North Sea.</div>
+      </div>
+      <div class="venue-item" style="flex-direction:column;align-items:flex-start;gap:12px">
+        <div style="display:flex;align-items:center;gap:16px;width:100%">
+          <div class="venue-rank">5</div>
+          <div style="flex:1"><div class="venue-name" style="font-size:16px">Aylsham St Giles Cricket Club</div><div class="venue-meta">Community Cricket Club (ECB) · Aylsham, NR11 6AW · ★ 5.0</div></div>
+          <div class="venue-count">2<span>activities</span></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-secondary);padding-left:48px">Historic club since 1913. Active women's team with paid coaching. Provides all equipment. Community-based at Aylsham Recreation Ground.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="brand">
+      <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+      <span>Played Intelligence</span>
+    </div>
+    <p>Demo report generated April 2026. Data from Every Move Norfolk, Google Places, ECB, England Golf, and AI enrichment pipeline.</p>
+  </div>
+</footer>
+
+<script>
+// ── Chart config ──
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.borderColor = 'rgba(255,255,255,.06)';
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+const PRIMARY = '#00A651';
+const PRIMARY_A = 'rgba(0,166,81,.6)';
+const BLUE = '#60a5fa';
+const BLUE_A = 'rgba(96,165,250,.3)';
+const GREEN = '#34d399';
+const AMBER = '#fbbf24';
+
+// ── Every Move data ──
+const months = ['Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26','Apr 26'];
+const sessions = [382,584,4299,6214,1201,766,627,108];
+const users = [309,436,2692,3458,755,551,461,92];
+const searches = [1079,1408,4723,5735,2572,1358,869,114];
+const views = [444,705,3489,4768,1685,784,479,45];
+const bookings = [105,179,406,589,287,8,4,0];
+
+const actTypes = ['Holiday Camp','Basketball','Football','Boxfit','Nordic Walking','Running','Golf','Swimming','Multi-Sport','Fitness Classes','Cricket','Aqua'];
+const actCounts = [10125,258,178,98,65,63,50,39,35,32,28,25];
+
+const referrers = ['GCSS Interactive','Norfolk County Council','folk.activityfinder.net','activenorfolk.org','norfolk.gov.uk','google','ovenorfolk.played.co','facebook.com'];
+const refCounts = [1846,1789,1543,697,622,586,492,45];
+
+const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const dayCounts = [1397,5134,3194,2871,2803,2116,1153];
+
+// ── Monthly sessions & users ──
+new Chart(document.getElementById('chartMonthly'), {
+  type:'line',
+  data:{
+    labels:months,
+    datasets:[
+      {label:'Sessions',data:sessions,borderColor:'#ffffff',backgroundColor:'rgba(255,255,255,.05)',fill:true,tension:.3,pointRadius:4,borderWidth:2},
+      {label:'Users',data:users,borderColor:PRIMARY,backgroundColor:'rgba(0,166,81,.05)',fill:true,tension:.3,pointRadius:4,borderWidth:2}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true},x:{grid:{display:false}}},plugins:{legend:{display:true,position:'top',labels:{boxWidth:12,padding:16}}}}
+});
+
+// ── Funnel ──
+new Chart(document.getElementById('chartFunnel'), {
+  type:'line',
+  data:{
+    labels:months,
+    datasets:[
+      {label:'Searches',data:searches,borderColor:'#ffffff',tension:.3,pointRadius:3,borderWidth:2},
+      {label:'Activity views',data:views,borderColor:GREEN,tension:.3,pointRadius:3,borderWidth:2},
+      {label:'Bookings',data:bookings,borderColor:PRIMARY,tension:.3,pointRadius:3,borderWidth:2}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true},x:{grid:{display:false}}},plugins:{legend:{display:true,position:'top',labels:{boxWidth:12,padding:16}}}}
+});
+
+// ── Activity types ──
+new Chart(document.getElementById('chartActivityTypes'), {
+  type:'bar',
+  data:{labels:actTypes,datasets:[{label:'Clicks',data:actCounts,backgroundColor:PRIMARY,borderRadius:6,barThickness:20}]},
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',scales:{x:{beginAtZero:true,grid:{color:'rgba(255,255,255,.06)'}},y:{grid:{display:false}}},plugins:{legend:{display:false}}}
+});
+
+// ── Devices ──
+new Chart(document.getElementById('chartDevices'), {
+  type:'doughnut',
+  data:{labels:['Mobile','Desktop','Tablet'],datasets:[{data:[11187,2949,95],backgroundColor:[PRIMARY,GREEN,BLUE],borderWidth:0,hoverOffset:8}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:true,position:'bottom',labels:{padding:20,boxWidth:12}}}}
+});
+
+// ── Referrers ──
+new Chart(document.getElementById('chartReferrers'), {
+  type:'bar',
+  data:{labels:referrers,datasets:[{label:'Sessions',data:refCounts,backgroundColor:'#A57ABA',borderRadius:6,barThickness:18}]},
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',scales:{x:{beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:11}}}},plugins:{legend:{display:false}}}
+});
+
+// ── Search by day ──
+new Chart(document.getElementById('chartByDay'), {
+  type:'bar',
+  data:{labels:dayLabels,datasets:[{label:'Searches',data:dayCounts,backgroundColor:PRIMARY,borderRadius:6,barThickness:32}]},
+  options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true},x:{grid:{display:false}}},plugins:{legend:{display:false}}}
+});
+
+// ── Provider types ──
+new Chart(document.getElementById('chartProviderTypes'), {
+  type:'bar',
+  data:{
+    labels:['Sports Club','Community Org','Gym & Fitness','Health Provider','Sports School','Event Venue','Cricket (ECB)','Community Centre','Golf (EG)','Community Provider','Wellbeing','Watersports','Equestrian','Yoga Studio'],
+    datasets:[{data:[520,309,255,231,231,197,119,115,102,72,87,62,39,44],backgroundColor:PRIMARY,borderRadius:6,barThickness:18}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',scales:{x:{beginAtZero:true},y:{grid:{display:false},ticks:{font:{size:11}}}},plugins:{legend:{display:false}}}
+});
+
+// ── Districts ──
+new Chart(document.getElementById('chartDistricts'), {
+  type:'bar',
+  data:{
+    labels:['Norwich','Great Yarmouth','King\'s Lynn & WN','Breckland','North Norfolk','Broadland','South Norfolk'],
+    datasets:[{data:[680,380,340,290,275,260,219],backgroundColor:months.map((_,i)=>(i===1||i===2)?AMBER:PRIMARY),borderRadius:6,barThickness:28}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true},x:{grid:{display:false}}},plugins:{legend:{display:false}}}
+});
+
+// ── Scroll reveal ──
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)} });
+}, {threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// ── Counter animation ──
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = parseInt(el.dataset.count);
+  const prefix = el.dataset.prefix || '';
+  let current = 0;
+  const step = Math.max(1, Math.floor(target / 60));
+  const timer = setInterval(() => {
+    current += step;
+    if(current >= target){current = target;clearInterval(timer)}
+    el.textContent = prefix + current.toLocaleString();
+  }, 16);
+});
+</script>
+</body>
+</html>
