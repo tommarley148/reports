@@ -11,10 +11,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#1c1c1e;--surface:#2a2a2b;--surface2:#333335;
-  --primary:#00A651;--primary-dim:rgba(0,166,81,.15);
-  --text:#ffffff;--text-secondary:#9ca3af;--text-tertiary:#6b7280;
-  --green:#34d399;--amber:#fbbf24;--blue:#60a5fa;--coral:#E85D6C;
+  --bg:#FAFAF8;--surface:#ffffff;--surface2:#E8E9EB;
+  --primary:#00A651;--primary-dim:rgba(0,166,81,.08);
+  --text:#313233;--text-secondary:#666769;--text-tertiary:#BBBCBF;
+  --green:#47B259;--amber:#F89501;--blue:#2563EB;--coral:#ED2151;
   --radius:12px;--radius-sm:8px;
 }
 html{scroll-behavior:smooth}
@@ -49,13 +49,13 @@ section{padding:64px 0}
 .section-desc{color:var(--text-secondary);font-size:15px;margin-bottom:32px;max-width:720px}
 
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.kpi-card{background:var(--surface);padding:28px 24px;border-radius:var(--radius)}
+.kpi-card{background:var(--surface);padding:28px 24px;border-radius:var(--radius);border:1px solid var(--surface2)}
 .kpi-value{font-size:clamp(28px,3.5vw,44px);font-weight:800;line-height:1.1;margin-bottom:4px}
 .kpi-label{font-size:14px;color:var(--text-secondary);line-height:1.4}
 .kpi-sub{font-size:12px;color:var(--text-tertiary);margin-top:4px}
 
 .chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.chart-box{background:var(--surface);border-radius:var(--radius);padding:24px}
+.chart-box{background:var(--surface);border-radius:var(--radius);padding:24px;border:1px solid var(--surface2)}
 .chart-box h3{font-size:16px;font-weight:600;margin-bottom:4px}
 .chart-box .chart-sub{font-size:13px;color:var(--text-tertiary);margin-bottom:16px}
 .chart-box canvas{width:100%!important}
@@ -63,7 +63,7 @@ section{padding:64px 0}
 .stat-highlight{
   display:flex;align-items:center;gap:24px;
   background:var(--surface);border-radius:var(--radius);padding:32px;
-  border-left:4px solid var(--primary);margin-bottom:24px;
+  border-left:4px solid var(--primary);margin-bottom:24px;border:1px solid var(--surface2);border-left:4px solid var(--primary);
 }
 .stat-highlight .num{font-size:48px;font-weight:800;color:var(--text);white-space:nowrap}
 .stat-highlight .desc{font-size:15px;color:var(--text-secondary)}
@@ -71,7 +71,7 @@ section{padding:64px 0}
 .venue-list{display:flex;flex-direction:column;gap:8px}
 .venue-item{
   display:flex;align-items:center;gap:16px;
-  background:var(--surface);border-radius:var(--radius-sm);padding:16px 20px;
+  background:var(--surface);border-radius:var(--radius-sm);padding:16px 20px;border:1px solid var(--surface2);
 }
 .venue-rank{
   width:32px;height:32px;border-radius:50%;background:var(--primary-dim);
@@ -93,13 +93,13 @@ section{padding:64px 0}
   cursor:pointer;color:var(--text-secondary);background:transparent;border:none;
   transition:all .2s;font-family:inherit;
 }
-.tab.active{background:var(--primary);color:var(--text)}
+.tab.active{background:var(--primary);color:#ffffff}
 .tab:hover:not(.active){color:var(--text)}
 .tab-panel{display:none}
 .tab-panel.active{display:block}
 
 .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.summary-card{background:var(--surface);border-radius:var(--radius);padding:24px}
+.summary-card{background:var(--surface);border-radius:var(--radius);padding:24px;border:1px solid var(--surface2)}
 .summary-card h3{font-size:15px;font-weight:600;margin-bottom:12px}
 .summary-card .metric{font-size:32px;font-weight:800;margin-bottom:4px}
 .summary-card .detail{font-size:13px;color:var(--text-secondary);line-height:1.5}
@@ -146,7 +146,7 @@ section{padding:64px 0}
   <header class="header">
     <div class="header-top">
       <div class="logo">
-        <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+        <img src="https://onefinder-images.imgix.net/images/played/playedlogoblack.png" alt="Played">
       </div>
       <div class="header-badge">Demo Report</div>
     </div>
@@ -379,7 +379,7 @@ section{padding:64px 0}
 <footer class="footer">
   <div class="container">
     <div class="brand">
-      <img src="https://onefinder-images.imgix.net/images/played/playedlogowhite.png" alt="Played">
+      <img src="https://onefinder-images.imgix.net/images/played/playedlogoblack.png" alt="Played">
       <span>Played Intelligence</span>
     </div>
     <p>Demo report generated April 2026. Data from Every Move Norfolk, Google Places, ECB, England Golf, and AI enrichment pipeline.</p>
@@ -388,8 +388,8 @@ section{padding:64px 0}
 
 <script>
 // ── Chart config ──
-Chart.defaults.color = '#9ca3af';
-Chart.defaults.borderColor = 'rgba(255,255,255,.06)';
+Chart.defaults.color = '#666769';
+Chart.defaults.borderColor = 'rgba(0,0,0,.06)';
 Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 const PRIMARY = '#00A651';
 const PRIMARY_A = 'rgba(0,166,81,.6)';
@@ -421,7 +421,7 @@ new Chart(document.getElementById('chartMonthly'), {
   data:{
     labels:months,
     datasets:[
-      {label:'Sessions',data:sessions,borderColor:'#ffffff',backgroundColor:'rgba(255,255,255,.05)',fill:true,tension:.3,pointRadius:4,borderWidth:2},
+      {label:'Sessions',data:sessions,borderColor:'#313233',backgroundColor:'rgba(49,50,51,.05)',fill:true,tension:.3,pointRadius:4,borderWidth:2},
       {label:'Users',data:users,borderColor:PRIMARY,backgroundColor:'rgba(0,166,81,.05)',fill:true,tension:.3,pointRadius:4,borderWidth:2}
     ]
   },
@@ -434,7 +434,7 @@ new Chart(document.getElementById('chartFunnel'), {
   data:{
     labels:months,
     datasets:[
-      {label:'Searches',data:searches,borderColor:'#ffffff',tension:.3,pointRadius:3,borderWidth:2},
+      {label:'Searches',data:searches,borderColor:'#313233',tension:.3,pointRadius:3,borderWidth:2},
       {label:'Activity views',data:views,borderColor:GREEN,tension:.3,pointRadius:3,borderWidth:2},
       {label:'Bookings',data:bookings,borderColor:PRIMARY,tension:.3,pointRadius:3,borderWidth:2}
     ]
