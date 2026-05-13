@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golf Simulator Market — Data &amp; Insights | Golf Genius</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1c1e;--surface:#2a2a2b;--surface2:#333335;
+  --coral:#FF6633;--coral-dim:rgba(255,102,51,.15);--coral-a:rgba(255,102,51,.5);
+  --white:#fff;--gray:#9ca3af;--gray2:#6b7280;
+  --green:#34d399;--amber:#fbbf24;--blue:#60a5fa;--purple:#a78bfa;--pink:#f472b6;
+  --radius:12px;--radius-sm:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--white);line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* Header */
+.header{padding:48px 0 24px;border-bottom:1px solid var(--surface2)}
+.logo{display:flex;align-items:center;margin-bottom:40px}
+.logo img{height:48px;width:48px;border-radius:8px;object-fit:cover}
+.logo span{font-size:22px;font-weight:700;margin-left:12px}
+.report-title{font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.1;margin-bottom:8px}
+.report-subtitle{font-size:16px;color:var(--gray);margin-bottom:4px;max-width:760px}
+
+/* Filters */
+.filter-bar{display:flex;gap:16px;flex-wrap:wrap;margin:32px 0 0;align-items:flex-end}
+.filter{display:flex;flex-direction:column;gap:6px;min-width:200px;flex:1}
+.filter label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.2px;color:var(--gray)}
+.filter select{appearance:none;-webkit-appearance:none;background:var(--surface);color:var(--white);
+  border:1px solid var(--surface2);border-radius:8px;padding:14px 36px 14px 16px;
+  font:600 15px/1 'Plus Jakarta Sans',sans-serif;cursor:pointer;width:100%;
+  background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center}
+.filter select:hover{border-color:var(--coral)}
+.filter select:focus{outline:none;border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-dim)}
+.filter-summary{font-size:13px;color:var(--gray2);margin-top:12px}
+.filter-summary strong{color:var(--white)}
+
+/* Sections */
+section{padding:56px 0}
+.section-label{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--coral);margin-bottom:8px}
+.section-title{font-size:clamp(24px,3vw,36px);font-weight:700;margin-bottom:16px}
+.section-desc{color:var(--gray);font-size:15px;margin-bottom:32px;max-width:720px}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.kpi-card{background:var(--surface);padding:28px 24px;border-radius:var(--radius)}
+.kpi-value{font-size:clamp(36px,4vw,52px);font-weight:800;line-height:1.1;margin-bottom:4px}
+.kpi-label{font-size:14px;color:var(--gray);line-height:1.4}
+
+/* Charts */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.chart-box{background:var(--surface);border-radius:var(--radius);padding:24px}
+.chart-box h3{font-size:16px;font-weight:600;margin-bottom:16px}
+.chart-box .chart-sub{font-size:13px;color:var(--gray);margin-bottom:20px;line-height:1.5}
+.chart-box canvas{width:100%!important}
+
+/* Progress bars */
+.progress-item{margin-bottom:14px}
+.progress-header{display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px}
+.progress-header .label{color:var(--white);font-weight:500}
+.progress-header .value{color:var(--gray)}
+.progress-bar{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width 1.2s ease;width:0}
+.progress-fill.coral{background:var(--coral)}
+.progress-fill.green{background:var(--green)}
+.progress-fill.amber{background:var(--amber)}
+.progress-fill.blue{background:var(--blue)}
+.progress-fill.purple{background:var(--purple)}
+
+/* Stat highlight */
+.stat-highlight{display:flex;align-items:center;gap:24px;background:var(--surface);border-radius:var(--radius);padding:32px;border-left:4px solid var(--coral);margin-bottom:24px}
+.stat-highlight .num{font-size:48px;font-weight:800;color:var(--white);white-space:nowrap}
+.stat-highlight .desc{font-size:15px;color:var(--gray)}
+.stat-highlight .desc strong{color:var(--white)}
+
+/* Engagement */
+.engagement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.eng-item{background:var(--surface);border-radius:var(--radius-sm);padding:18px 20px;display:flex;align-items:center;gap:16px}
+.eng-pct{font-size:26px;font-weight:800;min-width:64px;text-align:right;color:var(--green)}
+.eng-pct.mid{color:var(--blue)}
+.eng-pct.low{color:var(--amber)}
+.eng-label{font-size:14px;font-weight:500}
+
+/* Currency badges */
+.cur-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px}
+.cur-card{background:var(--bg);border-radius:var(--radius-sm);padding:18px;text-align:center}
+.cur-card .num{font-size:24px;font-weight:800;color:var(--coral)}
+.cur-card .lbl{font-size:11px;color:var(--gray);margin-top:4px}
+
+/* Table */
+.simple-table{width:100%;font-size:13px;border-collapse:collapse}
+.simple-table tr{border-bottom:1px solid var(--surface2)}
+.simple-table tr:last-child{border-bottom:0}
+.simple-table td{padding:8px 0}
+.simple-table td.k{color:var(--white)}
+.simple-table td.v{color:var(--gray);text-align:right;font-variant-numeric:tabular-nums}
+
+/* Footer */
+.footer{padding:48px 0;border-top:1px solid var(--surface2);text-align:center;color:var(--gray2);font-size:13px}
+.footer .brand{font-size:14px;font-weight:600;color:var(--coral);margin-bottom:12px}
+
+/* Panel */
+.panel{animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Empty state */
+.empty-state{padding:80px 0;text-align:center}
+.empty-state h2{font-size:24px;font-weight:700;margin-bottom:12px}
+.empty-state p{color:var(--gray);max-width:480px;margin:0 auto}
+
+/* Responsive */
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.chart-row{grid-template-columns:1fr}.engagement-grid{grid-template-columns:1fr 1fr}.filter-bar{flex-direction:column;align-items:stretch}}
+@media(max-width:600px){.kpi-grid{grid-template-columns:1fr}.engagement-grid{grid-template-columns:1fr}}
+
+/* Print */
+@media print{
+  body{background:#fff;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .reveal{opacity:1!important;transform:none!important}
+  .filter-bar{display:none}
+  .kpi-card,.chart-box,.eng-item,.stat-highlight,.cur-card{background:#f9f9f9!important;border:1px solid #e5e5e5}
+  .kpi-value,.stat-highlight .num,.cur-card .num{color:#000!important}
+  .section-label{color:#FF6633!important}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header class="header">
+    <div class="logo">
+      <img src="golf-genius-logo.jpeg" alt="Golf Genius">
+      <span>Golf Genius</span>
+    </div>
+    <h1 class="report-title">Golf Simulator Market</h1>
+    <p class="report-subtitle">Data &amp; Insights Report — May 2026</p>
+    <p class="report-subtitle" style="color:var(--gray2)">Off-course simulator venues, golf courses with simulators, and driving ranges with smart bays — across every covered market.</p>
+    <div class="filter-bar">
+      <div class="filter">
+        <label for="region-filter">Region</label>
+        <select id="region-filter"><option value="All regions">All regions</option>
+<option value="UK & Ireland">UK & Ireland</option>
+<option value="Scandinavia">Scandinavia</option>
+<option value="Japan">Japan</option>
+<option value="Australia & NZ">Australia & NZ</option></select>
+      </div>
+      <div class="filter">
+        <label for="type-filter">Venue type</label>
+        <select id="type-filter"><option value="All venue types">All venue types</option>
+<option value="Off-course simulator venue">Off-course simulator venue</option>
+<option value="Golf course with simulator">Golf course with simulator</option>
+<option value="Hotel/resort with simulator">Hotel/resort with simulator</option>
+<option value="Coaching studio">Coaching studio</option>
+<option value="Entertainment venue">Entertainment venue</option>
+<option value="Driving range with tracking">Driving range with tracking</option></select>
+      </div>
+    </div>
+    <p class="filter-summary" id="filter-summary"></p>
+  </header>
+</div>
+
+<main id="panels"></main>
+
+<div class="footer">
+  <p class="brand">Golf Genius International</p>
+  <p>Golf simulator market report — May 2026</p>
+  <p style="margin-top:12px;font-size:11px;color:var(--gray2)">Data research and analysis by Played · Source: deliverable-2026-05-13.csv</p>
+</div>
+
+<script>
+const PAYLOAD = {"slices": {"All regions · All venue types": {"total": 2684, "insights": {"best_year": {"year": 2025, "count": 150}, "tech_premium": {"top": "TrackMan", "top_price": 22, "top_n": 381, "cmp": "Golfzon", "cmp_price": 9, "cmp_n": 41, "pct": 144}, "chain_premium": {"chain_med": 20, "indep_med": 20, "chain_n": 120, "indep_n": 660, "pct": 0}, "booking_gap": 267, "leagues_no_comp": 723, "scale_effect": [{"feature": "F&B", "1–2 bays": 50, "3–5 bays": 44, "6+ bays": 57}, {"feature": "Corporate Events", "1–2 bays": 54, "3–5 bays": 44, "6+ bays": 56}, {"feature": "Membership offered", "1–2 bays": 30, "3–5 bays": 48, "6+ bays": 41}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 4.7, "pct_3plus": 24, "n": 705}, {"cohort": "2020–2022", "avg_bays": 3.5, "pct_3plus": 47, "n": 135}, {"cohort": "2023–2026", "avg_bays": 3.8, "pct_3plus": 44, "n": 329}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Denmark", "share": 91, "n": 58}, {"country": "Norway", "share": 87, "n": 111}, {"country": "Finland", "share": 85, "n": 105}, {"country": "Sweden", "share": 81, "n": 144}, {"country": "Scotland", "share": 79, "n": 19}, {"country": "Ireland", "share": 76, "n": 34}, {"country": "Northern Ireland", "share": 73, "n": 11}, {"country": "England", "share": 53, "n": 468}, {"country": "New Zealand", "share": 36, "n": 39}, {"country": "Australia", "share": 32, "n": 142}, {"country": "Japan", "share": 8, "n": 751}, {"country": "Wales", "share": 7, "n": 14}]}, "price_by_country": [{"country": "Ireland", "median": 34, "n": 17}, {"country": "England", "median": 25, "n": 192}, {"country": "Wales", "median": 25, "n": 10}, {"country": "Denmark", "median": 23, "n": 27}, {"country": "New Zealand", "median": 23, "n": 42}, {"country": "Australia", "median": 20, "n": 131}, {"country": "Scotland", "median": 20, "n": 16}, {"country": "Norway", "median": 19, "n": 62}, {"country": "Sweden", "median": 17, "n": 79}, {"country": "Finland", "median": 13, "n": 66}, {"country": "Japan", "median": 8, "n": 131}]}, "n_with_year": 1322, "n_with_tech": 1896, "n_with_booking": 1959, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [9, 6, 7, 13, 23, 52, 69, 60, 91, 100, 150, 49], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 98], "ytd_2026": 49, "projected_2026": 147, "cumulative": [78, 84, 91, 104, 127, 179, 248, 308, 399, 499, 649, 698]}, "total_bays": 9592, "median_bays": 2, "mean_bays": 4.3, "bay_buckets": [["1–2 bays", 1357], ["3–5 bays", 406], ["6+ bays", 448]], "top_cities": [["Tokyo", 365], ["London", 85], ["Osaka", 85], ["Yokohama", 68], ["Kawasaki", 62], ["Saitama", 56], ["Nagoya", 48], ["Oslo", 36], ["Chiba", 35], ["Fukuoka", 35], ["Melbourne", 31], ["Sydney", 31], ["Kobe", 31], ["Hamamatsu", 29], ["Kumamoto", 29]], "countries": [["Japan", 1033], ["England", 894], ["Australia", 156], ["Sweden", 155], ["Norway", 128], ["Finland", 109], ["Denmark", 69], ["New Zealand", 48], ["Ireland", 41], ["Scotland", 22], ["Wales", 16], ["Northern Ireland", 13]], "categories": [["Off-course simulator venue", 1293], ["Golf course with simulator", 758], ["Coaching studio", 282], ["Driving range with tracking", 224], ["Entertainment venue", 85], ["Hotel/resort with simulator", 42]], "chain_pct": 12, "indep_count": 2368, "chain_count": 316, "price": {"min": 1, "max": 95, "median": 20, "mean": 20.2, "count": 780, "tiers": [["Under 20", 402], ["20–29", 250], ["30–39", 75], ["40–49", 32], ["50+", 21]]}, "membership": {"count": 389, "pct": 14, "median": 52, "mean": 78.9, "tiers": [["Under 30", 101], ["30–59", 111], ["60–99", 110], ["100–149", 36], ["150+", 31]]}, "technology": [["TrackMan", 776], ["Golfzon", 177], ["Toptracer", 95], ["Foresight", 85], ["OK ON GOLF", 81], ["SkyTrak", 45], ["X-Golf", 39], ["Full Swing", 33]], "booking": [["Native Website", 132], ["Your Golf Booking", 122], ["Intelligent Golf", 105], ["BRS Golf", 89], ["hacomono", 88], ["Sweetspot", 73], ["Meriq", 32], ["AlbaPlay", 28]], "engagement": [["Coaching", 95], ["Corporate Events", 97], ["Private Hire", 97], ["Social Events", 97], ["Custom Fitting", 85], ["Food & Drink", 84], ["Group Coaching", 89]], "programmes": [["Beginner programme", 96], ["Junior programme", 94], ["Women's sessions", 82], ["Family golf", 91], ["Taster sessions", 95]], "ce": {"avg_rating": 4.62, "high_rated_pct": 74, "median_reviews": 34}, "top_chains": [["SMART GOLF", 41], ["Lounge Range", 39], ["X-Golf", 37], ["Big Swing Golf", 25], ["ZENGOLF RANGE", 23], ["My Golf", 21], ["Step Golf", 12], ["Chicken Golf", 11], ["Watashi no Golf", 9], ["FiT24 Indoor Golf", 8]], "access": [["Public — pay per hour", 958], ["Members only", 657], ["Mixed access", 247], ["Lessons only", 226], ["Hotel/club guests only", 33], ["Private hire only", 10]], "n_with_bays": 2219}, "All regions · Off-course simulator venue": {"total": 1293, "insights": {"best_year": {"year": 2025, "count": 112}, "tech_premium": {"top": "TrackMan", "top_price": 21, "top_n": 201, "cmp": "Golfzon", "cmp_price": 12, "cmp_n": 28, "pct": 75}, "chain_premium": {"chain_med": 20, "indep_med": 20, "chain_n": 100, "indep_n": 345, "pct": 0}, "booking_gap": 202, "leagues_no_comp": 293, "scale_effect": [{"feature": "F&B", "1–2 bays": 31, "3–5 bays": 41, "6+ bays": 54}, {"feature": "Corporate Events", "1–2 bays": 56, "3–5 bays": 47, "6+ bays": 59}, {"feature": "Membership offered", "1–2 bays": 55, "3–5 bays": 52, "6+ bays": 60}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 5.2, "pct_3plus": 78, "n": 67}, {"cohort": "2020–2022", "avg_bays": 3.8, "pct_3plus": 57, "n": 76}, {"cohort": "2023–2026", "avg_bays": 3.5, "pct_3plus": 47, "n": 229}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Norway", "share": 90, "n": 69}, {"country": "Denmark", "share": 88, "n": 17}, {"country": "Scotland", "share": 88, "n": 8}, {"country": "Sweden", "share": 86, "n": 100}, {"country": "Finland", "share": 82, "n": 49}, {"country": "England", "share": 71, "n": 87}, {"country": "Ireland", "share": 69, "n": 13}, {"country": "New Zealand", "share": 35, "n": 34}, {"country": "Australia", "share": 25, "n": 114}, {"country": "Japan", "share": 6, "n": 530}]}, "price_by_country": [{"country": "Ireland", "median": 32, "n": 10}, {"country": "England", "median": 25, "n": 62}, {"country": "Denmark", "median": 23, "n": 10}, {"country": "New Zealand", "median": 23, "n": 37}, {"country": "Australia", "median": 20, "n": 115}, {"country": "Norway", "median": 18, "n": 38}, {"country": "Sweden", "median": 17, "n": 56}, {"country": "Finland", "median": 13, "n": 32}, {"country": "Japan", "median": 5, "n": 73}]}, "n_with_year": 472, "n_with_tech": 1030, "n_with_booking": 1065, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [4, 2, 4, 7, 9, 40, 37, 39, 58, 71, 112, 36], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 72], "ytd_2026": 36, "projected_2026": 108, "cumulative": [45, 47, 51, 58, 67, 107, 144, 183, 241, 312, 424, 460]}, "total_bays": 3634, "median_bays": 3.0, "mean_bays": 3.6, "bay_buckets": [["1–2 bays", 501], ["3–5 bays", 286], ["6+ bays", 227]], "top_cities": [["Tokyo", 271], ["Osaka", 65], ["Kawasaki", 56], ["Yokohama", 55], ["Saitama", 48], ["Nagoya", 31], ["Fukuoka", 26], ["Melbourne", 25], ["Sydney", 24], ["Chiba", 24], ["Hamamatsu", 20], ["Oslo", 20], ["Stockholm", 20], ["Kobe", 19], ["Brisbane", 17]], "countries": [["Japan", 737], ["Australia", 125], ["England", 104], ["Sweden", 104], ["Norway", 74], ["Finland", 50], ["New Zealand", 41], ["Denmark", 20], ["Ireland", 18], ["Scotland", 9], ["Northern Ireland", 6], ["Wales", 5]], "categories": [["Off-course simulator venue", 1293]], "chain_pct": 19, "indep_count": 1049, "chain_count": 244, "price": {"min": 1, "max": 90, "median": 20, "mean": 19.6, "count": 445, "tiers": [["Under 20", 239], ["20–29", 150], ["30–39", 36], ["40–49", 12], ["50+", 8]]}, "membership": {"count": 228, "pct": 18, "median": 52, "mean": 65.2, "tiers": [["Under 30", 59], ["30–59", 71], ["60–99", 68], ["100–149", 15], ["150+", 15]]}, "technology": [["TrackMan", 360], ["Golfzon", 137], ["OK ON GOLF", 73], ["X-Golf", 37], ["Full Swing", 29], ["Foresight", 29], ["SDR", 29], ["SkyTrak", 25]], "booking": [["Native Website", 85], ["hacomono", 80], ["Your Golf Booking", 52], ["Sweetspot", 51], ["Meriq", 32], ["AlbaPlay", 21], ["LINE", 19], ["smartphone app", 17]], "engagement": [["Coaching", 93], ["Corporate Events", 97], ["Private Hire", 99], ["Social Events", 96], ["Custom Fitting", 77], ["Food & Drink", 72], ["Group Coaching", 87]], "programmes": [["Beginner programme", 96], ["Junior programme", 92], ["Women's sessions", 80], ["Family golf", 95], ["Taster sessions", 98]], "ce": {"avg_rating": 4.69, "high_rated_pct": 83, "median_reviews": 16}, "top_chains": [["X-Golf", 37], ["SMART GOLF", 37], ["Lounge Range", 33], ["Big Swing Golf", 25], ["My Golf", 20], ["ZENGOLF RANGE", 20], ["Step Golf", 10], ["Watashi no Golf", 9], ["GOLF NEXT24", 8], ["FiT24 Indoor Golf", 7]], "access": [["Public — pay per hour", 546], ["Members only", 476], ["Mixed access", 159], ["Lessons only", 46], ["Private hire only", 3]], "n_with_bays": 1014}, "All regions · Golf course with simulator": {"total": 758, "insights": {"best_year": {"year": 2021, "count": 18}, "tech_premium": {"top": "TrackMan", "top_price": 25, "top_n": 92, "cmp": "Foresight", "cmp_price": 28, "cmp_n": 16, "pct": -11}, "leagues_no_comp": 287, "scale_effect": [{"feature": "F&B", "1–2 bays": 66, "3–5 bays": 61, "6+ bays": 54}, {"feature": "Corporate Events", "1–2 bays": 54, "3–5 bays": 41, "6+ bays": 38}, {"feature": "Membership offered", "1–2 bays": 10, "3–5 bays": 37, "6+ bays": 31}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 1.3, "pct_3plus": 4, "n": 490}, {"cohort": "2020–2022", "avg_bays": 2.3, "pct_3plus": 24, "n": 34}, {"cohort": "2023–2026", "avg_bays": 2.5, "pct_3plus": 41, "n": 37}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Denmark", "share": 93, "n": 29}, {"country": "Finland", "share": 92, "n": 13}, {"country": "Norway", "share": 86, "n": 22}, {"country": "Australia", "share": 79, "n": 14}, {"country": "Sweden", "share": 74, "n": 27}, {"country": "England", "share": 54, "n": 213}, {"country": "Japan", "share": 6, "n": 31}]}, "price_by_country": [{"country": "England", "median": 25, "n": 88}, {"country": "Norway", "median": 20, "n": 13}, {"country": "Denmark", "median": 17, "n": 11}, {"country": "Sweden", "median": 17, "n": 11}]}, "n_with_year": 586, "n_with_tech": 367, "n_with_booking": 458, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [3, 3, 2, 2, 2, 7, 18, 10, 14, 14, 9, 4], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8], "ytd_2026": 4, "projected_2026": 12, "cumulative": [13, 16, 18, 20, 22, 29, 47, 57, 71, 85, 94, 98]}, "total_bays": 1122, "median_bays": 1, "mean_bays": 1.6, "bay_buckets": [["1–2 bays", 605], ["3–5 bays", 54], ["6+ bays", 26]], "top_cities": [["London", 47], ["Manchester", 21], ["Birmingham", 16], ["Crawley", 15], ["Tokyo", 14], ["Macclesfield", 12], ["Hull", 12], ["Liverpool", 12], ["Newcastle upon Tyne", 11], ["Lincoln", 11], ["Blackburn", 10], ["Bristol", 10], ["Maidstone", 10], ["Woking", 10], ["Watford", 9]], "countries": [["England", 563], ["Japan", 45], ["Denmark", 35], ["Norway", 33], ["Sweden", 30], ["Australia", 16], ["Finland", 13], ["Wales", 7], ["Ireland", 5], ["Scotland", 5], ["New Zealand", 3], ["Northern Ireland", 3]], "categories": [["Golf course with simulator", 758]], "chain_pct": 2, "indep_count": 746, "chain_count": 12, "price": {"min": 3, "max": 72, "median": 23, "mean": 23.8, "count": 148, "tiers": [["Under 20", 54], ["20–29", 56], ["30–39", 19], ["40–49", 11], ["50+", 8]]}, "membership": {"count": 85, "pct": 11, "median": 61, "mean": 126.8, "tiers": [["Under 30", 18], ["30–59", 18], ["60–99", 25], ["100–149", 15], ["150+", 9]]}, "technology": [["TrackMan", 217], ["Foresight", 36], ["Toptracer", 26], ["FlightScope", 13], ["SkyTrak", 9], ["Golfzon", 8], ["OK ON GOLF", 3], ["Uneekor", 2]], "booking": [["Intelligent Golf", 90], ["BRS Golf", 75], ["Your Golf Booking", 33], ["Native Website", 28], ["ClubV1", 14], ["GolfBox", 13], ["Sweetspot", 11], ["Acuity Scheduling", 6]], "engagement": [["Coaching", 98], ["Corporate Events", 98], ["Private Hire", 95], ["Social Events", 97], ["Custom Fitting", 94], ["Food & Drink", 97], ["Group Coaching", 90]], "programmes": [["Beginner programme", 93], ["Junior programme", 94], ["Women's sessions", 80], ["Family golf", 76], ["Taster sessions", 69]], "ce": {"avg_rating": 4.53, "high_rated_pct": 66, "median_reviews": 185}, "top_chains": [["Lounge Range", 5], ["Caddi Club", 3], ["Club Champion Golf", 2], ["ZENGOLF RANGE", 1], ["GolfStar", 1]], "access": [["Public — pay per hour", 167], ["Members only", 108], ["Lessons only", 73], ["Mixed access", 31], ["Private hire only", 2], ["Hotel/club guests only", 1]], "n_with_bays": 685}, "All regions · Hotel/resort with simulator": {"total": 42, "insights": {"best_year": {"year": 2026, "count": 1}, "scale_effect": [{"feature": "F&B", "1–2 bays": 89, "3–5 bays": null, "6+ bays": 67}, {"feature": "Corporate Events", "1–2 bays": 78, "3–5 bays": null, "6+ bays": 67}, {"feature": "Membership offered", "1–2 bays": 14, "3–5 bays": null, "6+ bays": 0}]}, "n_with_year": 35, "n_with_tech": 15, "n_with_booking": 15, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2], "ytd_2026": 1, "projected_2026": 3, "cumulative": [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3]}, "total_bays": 79, "median_bays": 1, "mean_bays": 2.0, "bay_buckets": [["1–2 bays", 36], ["6+ bays", 3]], "top_cities": [["Norwich", 3], ["Exeter", 2], ["Hull", 2], ["Newcastle upon Tyne", 2], ["Derry", 2], ["Helsingborg", 2], ["Brisbane", 1], ["Coventry", 1], ["Bath", 1], ["Wolverhampton", 1], ["Brighton", 1], ["Gloucester", 1], ["Liverpool", 1], ["Woking", 1], ["Guildford", 1]], "countries": [["England", 33], ["Ireland", 2], ["Northern Ireland", 2], ["Sweden", 2], ["Wales", 2], ["Australia", 1]], "categories": [["Hotel/resort with simulator", 42]], "chain_pct": 0, "indep_count": 42, "chain_count": 0, "price": {"min": 3, "max": 50, "median": 25, "mean": 24.7, "count": 11, "tiers": [["Under 20", 3], ["20–29", 4], ["30–39", 3], ["50+", 1]]}, "membership": {"count": 5, "pct": 12, "median": 54, "mean": 48.0, "tiers": [["Under 30", 1], ["30–59", 2], ["60–99", 2]]}, "technology": [["TrackMan", 6], ["Foresight", 2], ["TruGolf E6 APEX", 1], ["Foresight Hawk", 1], ["TaylorMade", 1], ["Unknown (cutting-edge golf simulator)", 1], ["Not determinable from current sources", 1], ["Toptracer", 1]], "booking": [["BRS Golf", 2], ["Intelligent Golf", 2], ["Online booking via migolfdartington.co.uk", 1], ["Your Golf Booking", 1], ["online tee booking system", 1], ["e-s-p.com", 1], ["Phone or email (01661 886400 Ext 2)", 1], ["ResDiary", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 100], ["Group Coaching", 67]], "programmes": [["Beginner programme", 75], ["Junior programme", 89], ["Women's sessions", 25], ["Family golf", 77], ["Taster sessions", 50]], "ce": {"avg_rating": 4.37, "high_rated_pct": 42, "median_reviews": 723}, "top_chains": [], "access": [["Hotel/club guests only", 32], ["Public — pay per hour", 4]], "n_with_bays": 39}, "All regions · Coaching studio": {"total": 282, "insights": {"best_year": {"year": 2025, "count": 14}, "tech_premium": {"top": "TrackMan", "top_price": 20, "top_n": 56, "cmp": "Golfzon", "cmp_price": 2, "cmp_n": 7, "pct": 900}, "chain_premium": {"chain_med": 2, "indep_med": 16, "chain_n": 11, "indep_n": 92, "pct": -88}, "booking_gap": 65, "leagues_no_comp": 57, "scale_effect": [{"feature": "F&B", "1–2 bays": 31, "3–5 bays": 12, "6+ bays": 20}, {"feature": "Corporate Events", "1–2 bays": 38, "3–5 bays": 15, "6+ bays": 27}, {"feature": "Membership offered", "1–2 bays": 32, "3–5 bays": 42, "6+ bays": 40}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 1.7, "pct_3plus": 10, "n": 21}, {"cohort": "2020–2022", "avg_bays": 2.7, "pct_3plus": 33, "n": 15}, {"cohort": "2023–2026", "avg_bays": 1.7, "pct_3plus": 8, "n": 39}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Finland", "share": 88, "n": 41}, {"country": "Norway", "share": 78, "n": 9}, {"country": "England", "share": 52, "n": 31}, {"country": "Japan", "share": 10, "n": 133}]}, "price_by_country": [{"country": "England", "median": 25, "n": 25}, {"country": "Finland", "median": 13, "n": 31}, {"country": "Japan", "median": 7, "n": 26}]}, "n_with_year": 79, "n_with_tech": 238, "n_with_booking": 211, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [1, 0, 0, 2, 4, 4, 9, 5, 12, 10, 14, 4], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8], "ytd_2026": 4, "projected_2026": 12, "cumulative": [5, 5, 5, 7, 11, 15, 24, 29, 41, 51, 65, 69]}, "total_bays": 494, "median_bays": 2, "mean_bays": 2.2, "bay_buckets": [["1–2 bays", 170], ["3–5 bays", 40], ["6+ bays", 15]], "top_cities": [["Tokyo", 55], ["Osaka", 13], ["Tampere", 10], ["Niigata", 10], ["Nagoya", 10], ["Vantaa", 9], ["Sendai", 9], ["Yokohama", 8], ["Espoo", 7], ["Hamamatsu", 7], ["Saitama", 7], ["Kobe", 7], ["Sapporo", 7], ["Jyväskylä", 6], ["Oulu", 6]], "countries": [["Japan", 169], ["Finland", 44], ["England", 33], ["Norway", 10], ["Sweden", 8], ["Scotland", 7], ["Australia", 4], ["Denmark", 2], ["New Zealand", 2], ["Wales", 2], ["Northern Ireland", 1]], "categories": [["Coaching studio", 282]], "chain_pct": 18, "indep_count": 230, "chain_count": 52, "price": {"min": 1, "max": 95, "median": 15, "mean": 17.9, "count": 103, "tiers": [["Under 20", 68], ["20–29", 19], ["30–39", 9], ["40–49", 5], ["50+", 2]]}, "membership": {"count": 33, "pct": 12, "median": 40, "mean": 55.6, "tiers": [["Under 30", 13], ["30–59", 11], ["60–99", 5], ["100–149", 2], ["150+", 2]]}, "technology": [["TrackMan", 87], ["Golfzon", 28], ["Foresight", 14], ["SkyTrak", 11], ["FlightScope", 7], ["GOLFTEC", 5], ["OK ON GOLF", 5], ["SDR", 3]], "booking": [["Native Website", 15], ["Your Golf Booking", 11], ["Sweetspot", 6], ["Coubic", 6], ["hacomono", 5], ["Trackman booking", 3], ["Thril", 3], ["play.fi", 3]], "engagement": [["Coaching", 99], ["Corporate Events", 89], ["Private Hire", 92], ["Social Events", 89], ["Custom Fitting", 89], ["Food & Drink", 59], ["Group Coaching", 86]], "programmes": [["Beginner programme", 97], ["Junior programme", 93], ["Women's sessions", 87], ["Family golf", 87], ["Taster sessions", 98]], "ce": {"avg_rating": 4.68, "high_rated_pct": 78, "median_reviews": 16}, "top_chains": [["Chicken Golf", 10], ["GolfTec", 6], ["Rizap Golf", 5], ["DOOR TO GOLF", 4], ["SMART GOLF", 4], ["STEPGOLF EXtra", 4], ["ZENGOLF ACADEMY", 4], ["Golf Studio Jyväskylä", 3], ["Golf Studios", 3], ["Passion Golf Studio", 2]], "access": [["Lessons only", 98], ["Public — pay per hour", 82], ["Members only", 49], ["Mixed access", 35]], "n_with_bays": 225}, "All regions · Entertainment venue": {"total": 85, "insights": {"best_year": {"year": 2025, "count": 9}, "leagues_no_comp": 23, "scale_effect": [{"feature": "F&B", "1–2 bays": 87, "3–5 bays": 100, "6+ bays": 78}, {"feature": "Corporate Events", "1–2 bays": 64, "3–5 bays": 87, "6+ bays": 89}, {"feature": "Membership offered", "1–2 bays": 23, "3–5 bays": 0, "6+ bays": 56}]}, "n_with_year": 24, "n_with_tech": 55, "n_with_booking": 67, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 1, 2, 0, 2, 2, 3, 2, 9, 1], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2], "ytd_2026": 1, "projected_2026": 3, "cumulative": [0, 0, 0, 1, 3, 3, 5, 7, 10, 12, 21, 22]}, "total_bays": 296, "median_bays": 2, "mean_bays": 4.7, "bay_buckets": [["1–2 bays", 39], ["3–5 bays", 15], ["6+ bays", 9]], "top_cities": [["Tokyo", 18], ["Nagoya", 5], ["Okayama", 4], ["Fukuoka", 4], ["Osaka", 4], ["Kyoto", 3], ["Sapporo", 3], ["Oslo", 3], ["Uppsala", 3], ["Sydney", 2], ["Gold Coast", 2], ["Naha", 2], ["Hiroshima", 2], ["Sendai", 2], ["Chiba", 2]], "countries": [["Japan", 56], ["Sweden", 8], ["Australia", 7], ["Denmark", 3], ["England", 3], ["Norway", 3], ["Finland", 1], ["Ireland", 1], ["New Zealand", 1], ["Northern Ireland", 1], ["Scotland", 1]], "categories": [["Entertainment venue", 85]], "chain_pct": 4, "indep_count": 82, "chain_count": 3, "price": {"min": 2, "max": 47, "median": 19, "mean": 19.1, "count": 40, "tiers": [["Under 20", 21], ["20–29", 13], ["30–39", 4], ["40–49", 2]]}, "membership": {"count": 13, "pct": 15, "median": 62, "mean": 98.6, "tiers": [["Under 30", 4], ["30–59", 1], ["60–99", 4], ["100–149", 2], ["150+", 2]]}, "technology": [["TrackMan", 18], ["JoyGolf Smart+", 3], ["Foresight", 2], ["Foresight FSX Play", 1], ["GolfSim Australia", 1], ["Full Swing", 1], ["Toptracer", 1], ["FullSwing/E6 system", 1]], "booking": [["Phone", 6], ["Your Golf Booking", 4], ["Hot Pepper", 3], ["SevenRooms", 2], ["Native Website", 2], ["MATCHi", 2], ["Hotpepper", 2], ["Hot Pepper Gourmet", 2]], "engagement": [["Coaching", 72], ["Corporate Events", 100], ["Private Hire", 96], ["Social Events", 100], ["Custom Fitting", 25], ["Food & Drink", 97], ["Group Coaching", 67]], "programmes": [["Beginner programme", 80], ["Junior programme", 82], ["Women's sessions", 60], ["Family golf", 95], ["Taster sessions", 100]], "ce": {"avg_rating": 4.58, "high_rated_pct": 64, "median_reviews": 27}, "top_chains": [["Send It! Social Club", 1], ["Swing Suite", 1], ["Topgolf", 1]], "access": [["Public — pay per hour", 59], ["Mixed access", 10], ["Members only", 5], ["Private hire only", 4]], "n_with_bays": 63}, "All regions · Driving range with tracking": {"total": 224, "insights": {"best_year": {"year": 2019, "count": 6}, "leagues_no_comp": 60, "scale_effect": [{"feature": "F&B", "1–2 bays": 67, "3–5 bays": 55, "6+ bays": 63}, {"feature": "Corporate Events", "1–2 bays": 50, "3–5 bays": 27, "6+ bays": 56}, {"feature": "Membership offered", "1–2 bays": 17, "3–5 bays": 55, "6+ bays": 17}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 23.5, "pct_3plus": 100, "n": 91}, {"cohort": "2020–2022", "avg_bays": 8.8, "pct_3plus": 100, "n": 6}, {"cohort": "2023–2026", "avg_bays": 16.3, "pct_3plus": 100, "n": 13}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Denmark", "share": 100, "n": 8}, {"country": "Norway", "share": 88, "n": 8}, {"country": "Ireland", "share": 86, "n": 14}, {"country": "England", "share": 39, "n": 127}, {"country": "Japan", "share": 31, "n": 26}]}}, "n_with_year": 126, "n_with_tech": 191, "n_with_booking": 143, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [1, 1, 1, 1, 6, 1, 2, 4, 4, 3, 6, 3], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6], "ytd_2026": 3, "projected_2026": 9, "cumulative": [14, 15, 16, 17, 23, 24, 26, 30, 34, 37, 43, 46]}, "total_bays": 3967, "median_bays": 19, "mean_bays": 21.4, "bay_buckets": [["1–2 bays", 6], ["3–5 bays", 11], ["6+ bays", 168]], "top_cities": [["London", 19], ["Woking", 7], ["Dublin", 7], ["Tokyo", 7], ["Wolverhampton", 6], ["Maidstone", 6], ["Birmingham", 5], ["Norwich", 5], ["Gloucester", 4], ["Oxford", 4], ["Chelmsford", 4], ["Kumamoto", 4], ["Oslo", 4], ["Copenhagen", 3], ["Bedford", 3]], "countries": [["England", 158], ["Japan", 26], ["Ireland", 15], ["Denmark", 9], ["Norway", 8], ["Australia", 3], ["Sweden", 3], ["Finland", 1], ["New Zealand", 1]], "categories": [["Driving range with tracking", 224]], "chain_pct": 2, "indep_count": 219, "chain_count": 5, "price": {"min": 3, "max": 60, "median": 17, "mean": 20.6, "count": 33, "tiers": [["Under 20", 17], ["20–29", 8], ["30–39", 4], ["40–49", 2], ["50+", 2]]}, "membership": {"count": 25, "pct": 11, "median": 48, "mean": 67.8, "tiers": [["Under 30", 6], ["30–59", 8], ["60–99", 6], ["100–149", 2], ["150+", 3]]}, "technology": [["TrackMan", 88], ["Toptracer", 66], ["Toptracer Range", 3], ["Inrange", 3], ["Golfzon", 3], ["Top Tracer", 2], ["Foresight", 2], ["Topgolf", 2]], "booking": [["Your Golf Booking", 21], ["Intelligent Golf", 13], ["BRS Golf", 11], ["ProAgenda", 7], ["e-s-p.com", 6], ["Acuity Scheduling", 3], ["ClubV1", 3], ["SimplyBook.me", 3]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 97], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.5, "high_rated_pct": 59, "median_reviews": 181}, "top_chains": [["Topgolf", 3], ["ZENGOLF RANGE", 2]], "access": [["Public — pay per hour", 100], ["Members only", 19], ["Mixed access", 12], ["Lessons only", 9], ["Private hire only", 1]], "n_with_bays": 193}, "UK & Ireland · All venue types": {"total": 986, "insights": {"best_year": {"year": 2025, "count": 53}, "tech_premium": {"top": "TrackMan", "top_price": 28, "top_n": 135, "cmp": "Foresight", "cmp_price": 27, "cmp_n": 33, "pct": 4}, "chain_premium": {"chain_med": 19, "indep_med": 25, "chain_n": 6, "indep_n": 236, "pct": -24}, "booking_gap": 24, "leagues_no_comp": 328, "scale_effect": [{"feature": "F&B", "1–2 bays": 65, "3–5 bays": 64, "6+ bays": 68}, {"feature": "Corporate Events", "1–2 bays": 56, "3–5 bays": 68, "6+ bays": 59}, {"feature": "Membership offered", "1–2 bays": 12, "3–5 bays": 59, "6+ bays": 13}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 4.4, "pct_3plus": 17, "n": 618}, {"cohort": "2020–2022", "avg_bays": 3.2, "pct_3plus": 39, "n": 57}, {"cohort": "2023–2026", "avg_bays": 3.5, "pct_3plus": 47, "n": 113}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Scotland", "share": 79, "n": 19}, {"country": "Ireland", "share": 76, "n": 34}, {"country": "Northern Ireland", "share": 73, "n": 11}, {"country": "England", "share": 53, "n": 468}, {"country": "Wales", "share": 7, "n": 14}]}, "price_by_country": [{"country": "Ireland", "median": 34, "n": 17}, {"country": "England", "median": 25, "n": 192}, {"country": "Wales", "median": 25, "n": 10}, {"country": "Scotland", "median": 20, "n": 16}]}, "n_with_year": 833, "n_with_tech": 546, "n_with_booking": 603, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [5, 4, 4, 5, 17, 19, 28, 16, 27, 39, 53, 13], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 26], "ytd_2026": 13, "projected_2026": 39, "cumulative": [33, 37, 41, 46, 63, 82, 110, 126, 153, 192, 245, 258]}, "total_bays": 4509, "median_bays": 1.0, "mean_bays": 5.0, "bay_buckets": [["1–2 bays", 675], ["3–5 bays", 75], ["6+ bays", 158]], "top_cities": [["London", 85], ["Manchester", 27], ["Birmingham", 23], ["Crawley", 20], ["Wolverhampton", 18], ["Norwich", 18], ["Maidstone", 18], ["Woking", 18], ["Chelmsford", 17], ["Dublin", 17], ["Liverpool", 16], ["Coventry", 16], ["Hull", 16], ["Newcastle upon Tyne", 15], ["Bristol", 15]], "countries": [["England", 894], ["Ireland", 41], ["Scotland", 22], ["Wales", 16], ["Northern Ireland", 13]], "categories": [["Golf course with simulator", 583], ["Driving range with tracking", 173], ["Off-course simulator venue", 142], ["Coaching studio", 43], ["Hotel/resort with simulator", 39], ["Entertainment venue", 6]], "chain_pct": 1, "indep_count": 974, "chain_count": 12, "price": {"min": 3, "max": 95, "median": 25, "mean": 26.4, "count": 242, "tiers": [["Under 20", 73], ["20–29", 82], ["30–39", 45], ["40–49", 22], ["50+", 20]]}, "membership": {"count": 154, "pct": 16, "median": 60, "mean": 110.1, "tiers": [["Under 30", 30], ["30–59", 40], ["60–99", 47], ["100–149", 18], ["150+", 19]]}, "technology": [["TrackMan", 298], ["Toptracer", 87], ["Foresight", 62], ["FlightScope", 14], ["SkyTrak", 9], ["Golfzon", 7], ["Inrange", 5], ["Protee", 4]], "booking": [["Intelligent Golf", 105], ["Your Golf Booking", 96], ["BRS Golf", 89], ["Native Website", 45], ["ClubV1", 17], ["Acuity Scheduling", 16], ["ProAgenda", 16], ["Trackman booking", 12]], "engagement": [["Coaching", 97], ["Corporate Events", 97], ["Private Hire", 95], ["Social Events", 96], ["Custom Fitting", 92], ["Food & Drink", 93], ["Group Coaching", 88]], "programmes": [["Beginner programme", 88], ["Junior programme", 89], ["Women's sessions", 69], ["Family golf", 79], ["Taster sessions", 63]], "ce": {"avg_rating": 4.6, "high_rated_pct": 72, "median_reviews": 176}, "top_chains": [["Caddi Club", 3], ["Topgolf", 3], ["Club Champion Golf", 2], ["ENGOLF", 2], ["1Iron Indoor Golf", 1], ["My Golf", 1]], "access": [["Public — pay per hour", 322], ["Members only", 74], ["Lessons only", 71], ["Mixed access", 52], ["Hotel/club guests only", 31], ["Private hire only", 2]], "n_with_bays": 916}, "UK & Ireland · Off-course simulator venue": {"total": 142, "insights": {"best_year": {"year": 2025, "count": 33}, "tech_premium": {"top": "TrackMan", "top_price": 28, "top_n": 52, "cmp": "Foresight", "cmp_price": 26, "cmp_n": 9, "pct": 8}, "booking_gap": 16, "leagues_no_comp": 57, "scale_effect": [{"feature": "F&B", "1–2 bays": 58, "3–5 bays": 64, "6+ bays": 80}, {"feature": "Corporate Events", "1–2 bays": 66, "3–5 bays": 79, "6+ bays": 80}, {"feature": "Membership offered", "1–2 bays": 23, "3–5 bays": 60, "6+ bays": 33}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 3.7, "pct_3plus": 35, "n": 17}, {"cohort": "2020–2022", "avg_bays": 3.8, "pct_3plus": 60, "n": 20}, {"cohort": "2023–2026", "avg_bays": 3.5, "pct_3plus": 58, "n": 55}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Scotland", "share": 88, "n": 8}, {"country": "England", "share": 71, "n": 87}, {"country": "Ireland", "share": 69, "n": 13}]}, "price_by_country": [{"country": "Ireland", "median": 32, "n": 10}, {"country": "England", "median": 25, "n": 62}]}, "n_with_year": 113, "n_with_tech": 117, "n_with_booking": 116, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [1, 1, 1, 3, 6, 9, 11, 5, 9, 20, 33, 6], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12], "ytd_2026": 6, "projected_2026": 18, "cumulative": [4, 5, 6, 9, 15, 24, 35, 40, 49, 69, 102, 108]}, "total_bays": 379, "median_bays": 3.0, "mean_bays": 3.4, "bay_buckets": [["1–2 bays", 53], ["3–5 bays", 42], ["6+ bays", 15]], "top_cities": [["London", 17], ["Dublin", 6], ["Coventry", 3], ["Taunton", 3], ["Chelmsford", 3], ["Ipswich", 3], ["UK", 3], ["Glasgow", 3], ["Cardiff", 3], ["Wolverhampton", 2], ["Eastbourne", 2], ["Leicester", 2], ["Basingstoke", 2], ["Brighton", 2], ["Harrogate", 2]], "countries": [["England", 104], ["Ireland", 18], ["Scotland", 9], ["Northern Ireland", 6], ["Wales", 5]], "categories": [["Off-course simulator venue", 142]], "chain_pct": 2, "indep_count": 139, "chain_count": 3, "price": {"min": 4, "max": 90, "median": 25, "mean": 26.8, "count": 84, "tiers": [["Under 20", 27], ["20–29", 27], ["30–39", 16], ["40–49", 6], ["50+", 8]]}, "membership": {"count": 46, "pct": 32, "median": 60, "mean": 90.3, "tiers": [["Under 30", 9], ["30–59", 13], ["60–99", 15], ["100–149", 2], ["150+", 7]]}, "technology": [["TrackMan", 83], ["Foresight", 14], ["Golfzon", 5], ["FlightScope", 2], ["Trackman, Golfzon", 2], ["SkyTrak", 2], ["Toptracer", 1], ["Foresight, Trackman", 1]], "booking": [["Your Golf Booking", 34], ["Native Website", 13], ["Trackman booking", 9], ["Acuity Scheduling", 6], ["ProAgenda", 4], ["Setmore", 3], ["Momence", 3], ["Wix", 2]], "engagement": [["Coaching", 91], ["Corporate Events", 93], ["Private Hire", 94], ["Social Events", 93], ["Custom Fitting", 80], ["Food & Drink", 80], ["Group Coaching", 78]], "programmes": [["Beginner programme", 73], ["Junior programme", 56], ["Women's sessions", 27], ["Family golf", 73], ["Taster sessions", 71]], "ce": {"avg_rating": 4.86, "high_rated_pct": 90, "median_reviews": 20}, "top_chains": [["1Iron Indoor Golf", 1], ["ENGOLF", 1], ["My Golf", 1]], "access": [["Public — pay per hour", 85], ["Mixed access", 23], ["Lessons only", 4], ["Private hire only", 1], ["Members only", 1]], "n_with_bays": 110}, "UK & Ireland · Golf course with simulator": {"total": 583, "insights": {"best_year": {"year": 2021, "count": 15}, "tech_premium": {"top": "TrackMan", "top_price": 27, "top_n": 56, "cmp": "Foresight", "cmp_price": 28, "cmp_n": 16, "pct": -4}, "leagues_no_comp": 217, "scale_effect": [{"feature": "F&B", "1–2 bays": 66, "3–5 bays": 62, "6+ bays": 71}, {"feature": "Corporate Events", "1–2 bays": 54, "3–5 bays": 62, "6+ bays": 86}, {"feature": "Membership offered", "1–2 bays": 10, "3–5 bays": 58, "6+ bays": 29}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 1.1, "pct_3plus": 2, "n": 469}, {"cohort": "2020–2022", "avg_bays": 1.9, "pct_3plus": 17, "n": 29}, {"cohort": "2023–2026", "avg_bays": 2.3, "pct_3plus": 40, "n": 30}]}, "n_with_year": 534, "n_with_tech": 229, "n_with_booking": 339, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [3, 2, 2, 1, 2, 6, 15, 8, 13, 13, 5, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [12, 14, 16, 17, 19, 25, 40, 48, 61, 74, 79, 79]}, "total_bays": 749, "median_bays": 1.0, "mean_bays": 1.3, "bay_buckets": [["1–2 bays", 543], ["3–5 bays", 26], ["6+ bays", 7]], "top_cities": [["London", 47], ["Manchester", 21], ["Birmingham", 16], ["Crawley", 15], ["Macclesfield", 12], ["Hull", 12], ["Liverpool", 12], ["Newcastle upon Tyne", 11], ["Lincoln", 11], ["Blackburn", 10], ["Bristol", 10], ["Maidstone", 10], ["Woking", 10], ["Watford", 9], ["Chelmsford", 9]], "countries": [["England", 563], ["Wales", 7], ["Ireland", 5], ["Scotland", 5], ["Northern Ireland", 3]], "categories": [["Golf course with simulator", 583]], "chain_pct": 1, "indep_count": 578, "chain_count": 5, "price": {"min": 3, "max": 72, "median": 25, "mean": 25.4, "count": 101, "tiers": [["Under 20", 29], ["20–29", 38], ["30–39", 16], ["40–49", 11], ["50+", 7]]}, "membership": {"count": 72, "pct": 12, "median": 64, "mean": 139.4, "tiers": [["Under 30", 14], ["30–59", 15], ["60–99", 21], ["100–149", 14], ["150+", 8]]}, "technology": [["TrackMan", 125], ["Foresight", 35], ["Toptracer", 21], ["FlightScope", 9], ["SkyTrak", 6], ["Golfzon", 2], ["Swing Studio (unspecified)", 2], ["Inrange, Trackman", 1]], "booking": [["Intelligent Golf", 90], ["BRS Golf", 75], ["Your Golf Booking", 31], ["Native Website", 27], ["ClubV1", 14], ["e-s-p.com", 5], ["TrackMan Booking", 5], ["Acuity Scheduling", 5]], "engagement": [["Coaching", 98], ["Corporate Events", 98], ["Private Hire", 95], ["Social Events", 97], ["Custom Fitting", 93], ["Food & Drink", 97], ["Group Coaching", 89]], "programmes": [["Beginner programme", 91], ["Junior programme", 93], ["Women's sessions", 76], ["Family golf", 73], ["Taster sessions", 57]], "ce": {"avg_rating": 4.57, "high_rated_pct": 73, "median_reviews": 196}, "top_chains": [["Caddi Club", 3], ["Club Champion Golf", 2]], "access": [["Public — pay per hour", 121], ["Members only", 70], ["Lessons only", 52], ["Mixed access", 19]], "n_with_bays": 576}, "UK & Ireland · Hotel/resort with simulator": {"total": 39, "insights": {"best_year": {"year": 2026, "count": 1}, "scale_effect": [{"feature": "F&B", "1–2 bays": 88, "3–5 bays": null, "6+ bays": 67}, {"feature": "Corporate Events", "1–2 bays": 79, "3–5 bays": null, "6+ bays": 67}, {"feature": "Membership offered", "1–2 bays": 15, "3–5 bays": null, "6+ bays": 0}]}, "n_with_year": 35, "n_with_tech": 14, "n_with_booking": 14, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2], "ytd_2026": 1, "projected_2026": 3, "cumulative": [1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3]}, "total_bays": 76, "median_bays": 1, "mean_bays": 2.1, "bay_buckets": [["1–2 bays", 34], ["6+ bays", 3]], "top_cities": [["Norwich", 3], ["Exeter", 2], ["Hull", 2], ["Newcastle upon Tyne", 2], ["Derry", 2], ["Coventry", 1], ["Bath", 1], ["Wolverhampton", 1], ["Brighton", 1], ["Gloucester", 1], ["Liverpool", 1], ["Woking", 1], ["Guildford", 1], ["Worthing", 1], ["Stevenage", 1]], "countries": [["England", 33], ["Ireland", 2], ["Northern Ireland", 2], ["Wales", 2]], "categories": [["Hotel/resort with simulator", 39]], "chain_pct": 0, "indep_count": 39, "chain_count": 0, "price": {"min": 3, "max": 50, "median": 25, "mean": 25.9, "count": 9, "tiers": [["Under 20", 2], ["20–29", 3], ["30–39", 3], ["50+", 1]]}, "membership": {"count": 5, "pct": 13, "median": 54, "mean": 48.0, "tiers": [["Under 30", 1], ["30–59", 2], ["60–99", 2]]}, "technology": [["TrackMan", 5], ["Foresight", 2], ["TruGolf E6 APEX", 1], ["Foresight Hawk", 1], ["TaylorMade", 1], ["Unknown (cutting-edge golf simulator)", 1], ["Not determinable from current sources", 1], ["Toptracer", 1]], "booking": [["BRS Golf", 2], ["Intelligent Golf", 2], ["Online booking via migolfdartington.co.uk", 1], ["Your Golf Booking", 1], ["online tee booking system", 1], ["e-s-p.com", 1], ["Phone or email (01661 886400 Ext 2)", 1], ["ResDiary", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 100], ["Group Coaching", 67]], "programmes": [["Beginner programme", 75], ["Junior programme", 89], ["Women's sessions", 25], ["Family golf", 75], ["Taster sessions", 33]], "ce": {"avg_rating": 4.35, "high_rated_pct": 41, "median_reviews": 791}, "top_chains": [], "access": [["Hotel/club guests only", 31], ["Public — pay per hour", 2]], "n_with_bays": 37}, "UK & Ireland · Coaching studio": {"total": 43, "insights": {"best_year": {"year": 2025, "count": 8}, "tech_premium": {"top": "TrackMan", "top_price": 32, "top_n": 16, "cmp": "Foresight", "cmp_price": 25, "cmp_n": 6, "pct": 28}, "booking_gap": 8, "leagues_no_comp": 8, "scale_effect": [{"feature": "F&B", "1–2 bays": 40, "3–5 bays": 50, "6+ bays": null}, {"feature": "Corporate Events", "1–2 bays": 48, "3–5 bays": 0, "6+ bays": null}, {"feature": "Membership offered", "1–2 bays": 20, "3–5 bays": 100, "6+ bays": null}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 1.4, "pct_3plus": 0, "n": 11}, {"cohort": "2023–2026", "avg_bays": 1.6, "pct_3plus": 0, "n": 18}]}, "n_with_year": 33, "n_with_tech": 40, "n_with_booking": 34, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 1, 2, 3, 1, 0, 3, 4, 8, 3], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6], "ytd_2026": 3, "projected_2026": 9, "cumulative": [2, 2, 2, 3, 5, 8, 9, 9, 12, 16, 24, 27]}, "total_bays": 60, "median_bays": 1.0, "mean_bays": 1.4, "bay_buckets": [["1–2 bays", 40], ["3–5 bays", 2]], "top_cities": [["Derby", 3], ["Milton Keynes", 2], ["London", 2], ["Bournemouth", 2], ["Halifax", 2], ["Bradford", 2], ["Aberdeen", 2], ["Ayr", 2], ["High Wycombe", 1], ["Chester", 1], ["Telford", 1], ["Oxford", 1], ["Birmingham", 1], ["Barnsley", 1], ["Wolverhampton", 1]], "countries": [["England", 33], ["Scotland", 7], ["Wales", 2], ["Northern Ireland", 1]], "categories": [["Coaching studio", 43]], "chain_pct": 2, "indep_count": 42, "chain_count": 1, "price": {"min": 12, "max": 95, "median": 25, "mean": 28.3, "count": 32, "tiers": [["Under 20", 9], ["20–29", 9], ["30–39", 9], ["40–49", 3], ["50+", 2]]}, "membership": {"count": 10, "pct": 23, "median": 45, "mean": 48.8, "tiers": [["Under 30", 2], ["30–59", 5], ["60–99", 3]]}, "technology": [["TrackMan", 21], ["Foresight", 9], ["Protee", 2], ["FlightScope", 2], ["Foresight Sports GCQuad / GC3", 1], ["Sports Coach Systems GPS Golf Simulator / Flightscope", 1], ["SkyTrak", 1], ["launch monitor (lessons), accurate simulation (booking)", 1]], "booking": [["Your Golf Booking", 9], ["Native Website", 4], ["Trackman booking", 2], ["Acuity Scheduling", 2], ["Your Golf Bookings", 1], ["SimplyBook", 1], ["SumUp Bookings", 1], ["Online booking via Setmore / Club website", 1]], "engagement": [["Coaching", 97], ["Corporate Events", 86], ["Private Hire", 88], ["Social Events", 85], ["Custom Fitting", 96], ["Food & Drink", 59], ["Group Coaching", 96]], "programmes": [["Beginner programme", 80], ["Junior programme", 73], ["Women's sessions", 38], ["Family golf", 60], ["Taster sessions", 60]], "ce": {"avg_rating": 4.91, "high_rated_pct": 92, "median_reviews": 22}, "top_chains": [["ENGOLF", 1]], "access": [["Public — pay per hour", 28], ["Lessons only", 8], ["Mixed access", 4]], "n_with_bays": 42}, "UK & Ireland · Entertainment venue": {"total": 6, "insights": {"best_year": {"year": 2025, "count": 3}, "scale_effect": [{"feature": "F&B", "1–2 bays": 50, "3–5 bays": null, "6+ bays": 67}, {"feature": "Corporate Events", "1–2 bays": 100, "3–5 bays": null, "6+ bays": 100}, {"feature": "Membership offered", "1–2 bays": 50, "3–5 bays": null, "6+ bays": 67}]}, "n_with_year": 6, "n_with_tech": 5, "n_with_booking": 3, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 3, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 5, 5]}, "total_bays": 28, "median_bays": 6, "mean_bays": 5.6, "bay_buckets": [["1–2 bays", 2], ["6+ bays", 3]], "top_cities": [["Leeds", 1], ["Chelmsford", 1], ["Manchester", 1], ["Dublin", 1], ["Belfast", 1], ["Glasgow", 1]], "countries": [["England", 3], ["Ireland", 1], ["Northern Ireland", 1], ["Scotland", 1]], "categories": [["Entertainment venue", 6]], "chain_pct": 0, "indep_count": 6, "chain_count": 0, "price": {"min": 20, "max": 47, "median": 20, "mean": 28.9, "count": 3, "tiers": [["20–29", 2], ["40–49", 1]]}, "membership": {"count": 3, "pct": 50, "median": 70, "mean": 212.7, "tiers": [["60–99", 2], ["150+", 1]]}, "technology": [["TrackMan", 2], ["Rapsodo Golf", 1], ["TrackMan Bays", 1], ["Foresight GC2", 1]], "booking": [["Your Golf Booking", 2], ["Native Website", 1]], "engagement": [["Coaching", 75], ["Corporate Events", 100], ["Private Hire", 75], ["Social Events", 100], ["Custom Fitting", 50], ["Food & Drink", 60], ["Group Coaching", 0]], "programmes": [["Beginner programme", 0], ["Junior programme", 50], ["Women's sessions", 0], ["Family golf", 75]], "ce": {"avg_rating": 4.68, "high_rated_pct": 50, "median_reviews": 127}, "top_chains": [], "access": [["Public — pay per hour", 4], ["Private hire only", 1], ["Mixed access", 1]], "n_with_bays": 5}, "UK & Ireland · Driving range with tracking": {"total": 173, "insights": {"best_year": {"year": 2019, "count": 6}, "leagues_no_comp": 43, "scale_effect": [{"feature": "F&B", "1–2 bays": 67, "3–5 bays": 80, "6+ bays": 66}, {"feature": "Corporate Events", "1–2 bays": 33, "3–5 bays": 40, "6+ bays": 55}, {"feature": "Membership offered", "1–2 bays": 0, "3–5 bays": 40, "6+ bays": 9}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 24.1, "pct_3plus": 100, "n": 87}, {"cohort": "2023–2026", "avg_bays": 12.7, "pct_3plus": 100, "n": 7}], "tech_by_country": {"brand": "Toptracer", "rows": [{"country": "England", "share": 50, "n": 127}, {"country": "Ireland", "share": 0, "n": 14}]}}, "n_with_year": 112, "n_with_tech": 141, "n_with_booking": 97, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [1, 1, 1, 0, 6, 1, 0, 3, 2, 1, 4, 3], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6], "ytd_2026": 3, "projected_2026": 9, "cumulative": [14, 15, 16, 16, 22, 23, 23, 26, 28, 29, 33, 36]}, "total_bays": 3217, "median_bays": 22.5, "mean_bays": 23.3, "bay_buckets": [["1–2 bays", 3], ["3–5 bays", 5], ["6+ bays", 130]], "top_cities": [["London", 19], ["Woking", 7], ["Dublin", 7], ["Wolverhampton", 6], ["Maidstone", 6], ["Birmingham", 5], ["Norwich", 5], ["Gloucester", 4], ["Oxford", 4], ["Chelmsford", 4], ["Bedford", 3], ["Manchester", 3], ["Watford", 3], ["Coventry", 3], ["Derby", 3]], "countries": [["England", 158], ["Ireland", 15]], "categories": [["Driving range with tracking", 173]], "chain_pct": 2, "indep_count": 170, "chain_count": 3, "price": {"min": 9, "max": 60, "median": 20, "mean": 26.7, "count": 13, "tiers": [["Under 20", 6], ["20–29", 3], ["30–39", 1], ["40–49", 1], ["50+", 2]]}, "membership": {"count": 18, "pct": 10, "median": 55, "mean": 77.4, "tiers": [["Under 30", 4], ["30–59", 5], ["60–99", 4], ["100–149", 2], ["150+", 3]]}, "technology": [["Toptracer", 64], ["TrackMan", 62], ["Inrange", 3], ["Top Tracer", 2], ["Foresight", 2], ["Topgolf", 2], ["Trackman, Foresight Sports, Toptracer, SAMPuttLab", 1], ["InRange", 1]], "booking": [["Your Golf Booking", 19], ["Intelligent Golf", 13], ["BRS Golf", 11], ["ProAgenda", 7], ["e-s-p.com", 6], ["Acuity Scheduling", 3], ["ClubV1", 3], ["SimplyBook.me", 3]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 99], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.46, "high_rated_pct": 56, "median_reviews": 248}, "top_chains": [["Topgolf", 3]], "access": [["Public — pay per hour", 82], ["Lessons only", 7], ["Mixed access", 5], ["Members only", 3]], "n_with_bays": 146}, "Scandinavia · All venue types": {"total": 461, "insights": {"best_year": {"year": 2024, "count": 19}, "tech_premium": {"top": "TrackMan", "top_price": 17, "top_n": 192, "cmp": "Foresight", "cmp_price": 18, "cmp_n": 6, "pct": -6}, "chain_premium": {"chain_med": 16, "indep_med": 17, "chain_n": 11, "indep_n": 223, "pct": -6}, "booking_gap": 39, "leagues_no_comp": 201, "scale_effect": [{"feature": "F&B", "1–2 bays": 47, "3–5 bays": 57, "6+ bays": 62}, {"feature": "Corporate Events", "1–2 bays": 47, "3–5 bays": 69, "6+ bays": 78}, {"feature": "Membership offered", "1–2 bays": 25, "3–5 bays": 21, "6+ bays": 32}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 5.4, "pct_3plus": 55, "n": 33}, {"cohort": "2020–2022", "avg_bays": 3.3, "pct_3plus": 48, "n": 33}, {"cohort": "2023–2026", "avg_bays": 2.9, "pct_3plus": 28, "n": 53}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Denmark", "share": 91, "n": 58}, {"country": "Norway", "share": 87, "n": 111}, {"country": "Finland", "share": 85, "n": 105}, {"country": "Sweden", "share": 81, "n": 144}]}, "price_by_country": [{"country": "Denmark", "median": 23, "n": 27}, {"country": "Norway", "median": 19, "n": 62}, {"country": "Sweden", "median": 17, "n": 79}, {"country": "Finland", "median": 13, "n": 66}]}, "n_with_year": 140, "n_with_tech": 418, "n_with_booking": 376, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 1, 1, 2, 0, 5, 17, 12, 16, 19, 15, 7], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14], "ytd_2026": 7, "projected_2026": 21, "cumulative": [2, 3, 4, 6, 6, 11, 28, 40, 56, 75, 90, 97]}, "total_bays": 1503, "median_bays": 2, "mean_bays": 3.8, "bay_buckets": [["1–2 bays", 215], ["3–5 bays", 89], ["6+ bays", 91]], "top_cities": [["Oslo", 36], ["Stockholm", 26], ["Drammen", 25], ["Tampere", 24], ["Bergen", 17], ["Gothenburg", 17], ["Vantaa", 16], ["Espoo", 14], ["Kristiansand", 14], ["Stavanger", 13], ["Örebro", 13], ["Helsingborg", 13], ["Malmö", 13], ["Copenhagen", 12], ["Umeå", 12]], "countries": [["Sweden", 155], ["Norway", 128], ["Finland", 109], ["Denmark", 69]], "categories": [["Off-course simulator venue", 248], ["Golf course with simulator", 111], ["Coaching studio", 64], ["Driving range with tracking", 21], ["Entertainment venue", 15], ["Hotel/resort with simulator", 2]], "chain_pct": 4, "indep_count": 442, "chain_count": 19, "price": {"min": 1, "max": 45, "median": 17, "mean": 17.2, "count": 234, "tiers": [["Under 20", 163], ["20–29", 59], ["30–39", 9], ["40–49", 3]]}, "membership": {"count": 102, "pct": 22, "median": 61, "mean": 62.0, "tiers": [["Under 30", 29], ["30–59", 17], ["60–99", 40], ["100–149", 9], ["150+", 7]]}, "technology": [["TrackMan", 356], ["Foresight", 15], ["FlightScope", 5], ["Toptracer", 5], ["Full Swing", 3], ["Trackman, Foresight", 3], ["FullSwing/E6 system", 2], ["Uneekor", 2]], "booking": [["Sweetspot", 70], ["MATCHi", 27], ["Native Website", 27], ["AlbaPlay", 27], ["GolfBox", 16], ["Your Golf Booking", 10], ["Alba Play", 7], ["Trackman booking", 6]], "engagement": [["Coaching", 95], ["Corporate Events", 99], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 92], ["Food & Drink", 96], ["Group Coaching", 98]], "programmes": [["Beginner programme", 99], ["Junior programme", 98], ["Women's sessions", 97], ["Family golf", 96], ["Taster sessions", 95]], "ce": {"avg_rating": 4.55, "high_rated_pct": 63, "median_reviews": 16}, "top_chains": [["RUFF Indoor Golf", 5], ["Passion Golf Studio", 4], ["Golf Studio Jyväskylä", 3], ["Golf Studios", 3], ["GolfStar", 2], ["Golf 24", 1], ["X-Golf", 1]], "access": [["Public — pay per hour", 315], ["Mixed access", 34], ["Members only", 22], ["Lessons only", 21], ["Private hire only", 4], ["Hotel/club guests only", 2]], "n_with_bays": 395}, "Scandinavia · Off-course simulator venue": {"total": 248, "insights": {"best_year": {"year": 2024, "count": 14}, "tech_premium": {"top": "TrackMan", "top_price": 18, "top_n": 112, "cmp": "Foresight", "cmp_price": 20, "cmp_n": 5, "pct": -10}, "chain_premium": {"chain_med": 16, "indep_med": 17, "chain_n": 9, "indep_n": 127, "pct": -6}, "booking_gap": 31, "leagues_no_comp": 111, "scale_effect": [{"feature": "F&B", "1–2 bays": 41, "3–5 bays": 51, "6+ bays": 61}, {"feature": "Corporate Events", "1–2 bays": 48, "3–5 bays": 75, "6+ bays": 85}, {"feature": "Membership offered", "1–2 bays": 26, "3–5 bays": 25, "6+ bays": 36}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 5, "pct_3plus": 57, "n": 7}, {"cohort": "2020–2022", "avg_bays": 3.5, "pct_3plus": 54, "n": 24}, {"cohort": "2023–2026", "avg_bays": 3.6, "pct_3plus": 40, "n": 35}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Norway", "share": 90, "n": 69}, {"country": "Denmark", "share": 88, "n": 17}, {"country": "Sweden", "share": 86, "n": 100}, {"country": "Finland", "share": 82, "n": 49}]}, "price_by_country": [{"country": "Denmark", "median": 23, "n": 10}, {"country": "Norway", "median": 18, "n": 38}, {"country": "Sweden", "median": 17, "n": 56}, {"country": "Finland", "median": 13, "n": 32}]}, "n_with_year": 73, "n_with_tech": 235, "n_with_booking": 214, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 1, 2, 0, 5, 11, 9, 10, 14, 13, 2], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4], "ytd_2026": 2, "projected_2026": 6, "cumulative": [2, 2, 3, 5, 5, 10, 21, 30, 40, 54, 67, 69]}, "total_bays": 882, "median_bays": 3, "mean_bays": 3.9, "bay_buckets": [["1–2 bays", 100], ["3–5 bays", 68], ["6+ bays", 61]], "top_cities": [["Oslo", 20], ["Stockholm", 20], ["Drammen", 17], ["Gothenburg", 13], ["Bergen", 11], ["Malmö", 11], ["Kristiansand", 10], ["Tampere", 9], ["Jönköping", 9], ["Umeå", 8], ["Helsingborg", 8], ["Vantaa", 7], ["Lund", 7], ["Kuopio", 6], ["Helsinki", 6]], "countries": [["Sweden", 104], ["Norway", 74], ["Finland", 50], ["Denmark", 20]], "categories": [["Off-course simulator venue", 248]], "chain_pct": 4, "indep_count": 238, "chain_count": 10, "price": {"min": 1, "max": 42, "median": 16, "mean": 17.4, "count": 136, "tiers": [["Under 20", 95], ["20–29", 34], ["30–39", 5], ["40–49", 2]]}, "membership": {"count": 67, "pct": 27, "median": 61, "mean": 62.4, "tiers": [["Under 30", 15], ["30–59", 8], ["60–99", 35], ["100–149", 6], ["150+", 3]]}, "technology": [["TrackMan", 203], ["Foresight", 8], ["FlightScope", 3], ["Uneekor", 2], ["Not specified", 2], ["TruGolf", 2], ["Trackman | Foresight", 2], ["Trackman, Foresight", 2]], "booking": [["Sweetspot", 51], ["AlbaPlay", 20], ["Native Website", 19], ["MATCHi", 15], ["Your Golf Booking", 7], ["Alba Play", 6], ["Trackman booking", 4], ["varaaheti.fi", 3]], "engagement": [["Coaching", 90], ["Corporate Events", 98], ["Private Hire", 100], ["Social Events", 99], ["Custom Fitting", 84], ["Food & Drink", 96], ["Group Coaching", 95]], "programmes": [["Beginner programme", 96], ["Junior programme", 88], ["Women's sessions", 83], ["Family golf", 93], ["Taster sessions", 86]], "ce": {"avg_rating": 4.63, "high_rated_pct": 77, "median_reviews": 7}, "top_chains": [["RUFF Indoor Golf", 5], ["Passion Golf Studio", 2], ["Golf 24", 1], ["GolfStar", 1], ["X-Golf", 1]], "access": [["Public — pay per hour", 217], ["Mixed access", 19], ["Members only", 4], ["Private hire only", 2], ["Lessons only", 1]], "n_with_bays": 229}, "Scandinavia · Golf course with simulator": {"total": 111, "insights": {"best_year": {"year": 2026, "count": 4}, "leagues_no_comp": 51, "scale_effect": [{"feature": "F&B", "1–2 bays": 64, "3–5 bays": 71, "6+ bays": 73}, {"feature": "Corporate Events", "1–2 bays": 48, "3–5 bays": 29, "6+ bays": 36}, {"feature": "Membership offered", "1–2 bays": 9, "3–5 bays": 0, "6+ bays": 18}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 5, "pct_3plus": 56, "n": 18}, {"cohort": "2023–2026", "avg_bays": 2.6, "pct_3plus": 20, "n": 5}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Denmark", "share": 93, "n": 29}, {"country": "Finland", "share": 92, "n": 13}, {"country": "Norway", "share": 86, "n": 22}, {"country": "Sweden", "share": 74, "n": 27}]}, "price_by_country": [{"country": "Norway", "median": 20, "n": 13}, {"country": "Denmark", "median": 17, "n": 11}, {"country": "Sweden", "median": 17, "n": 11}]}, "n_with_year": 39, "n_with_tech": 91, "n_with_booking": 76, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 4], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8], "ytd_2026": 4, "projected_2026": 12, "cumulative": [0, 1, 1, 1, 1, 1, 2, 3, 3, 4, 4, 8]}, "total_bays": 231, "median_bays": 2, "mean_bays": 3.3, "bay_buckets": [["1–2 bays", 44], ["3–5 bays", 14], ["6+ bays", 11]], "top_cities": [["Stavanger", 9], ["Copenhagen", 8], ["Oslo", 8], ["Örebro", 7], ["Roskilde", 6], ["Drammen", 6], ["Bergen", 5], ["Esbjerg", 4], ["Vejle", 4], ["Tampere", 4], ["Randers", 3], ["Kolding", 3], ["Espoo", 3], ["Stockholm", 3], ["Uppsala", 3]], "countries": [["Denmark", 35], ["Norway", 33], ["Sweden", 30], ["Finland", 13]], "categories": [["Golf course with simulator", 111]], "chain_pct": 1, "indep_count": 110, "chain_count": 1, "price": {"min": 6, "max": 34, "median": 19, "mean": 19.8, "count": 37, "tiers": [["Under 20", 19], ["20–29", 16], ["30–39", 2]]}, "membership": {"count": 8, "pct": 7, "median": 49, "mean": 66.8, "tiers": [["Under 30", 1], ["30–59", 3], ["60–99", 2], ["100–149", 1], ["150+", 1]]}, "technology": [["TrackMan", 78], ["Toptracer", 4], ["Trackman SIM", 1], ["Trackman Indoor", 1], ["ProTee", 1], ["TrackMan Simulator", 1], ["Full Swing", 1], ["High Definition Golf", 1]], "booking": [["GolfBox", 13], ["Sweetspot", 9], ["MATCHi", 5], ["AlbaPlay", 4], ["WiseGolf", 3], ["asio.fi", 2], ["TrackMan-appen", 2], ["Alba (AlbaPlay)", 2]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 99], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.37, "high_rated_pct": 34, "median_reviews": 166}, "top_chains": [["GolfStar", 1]], "access": [["Public — pay per hour", 31], ["Members only", 16], ["Lessons only", 9], ["Mixed access", 8], ["Hotel/club guests only", 1], ["Private hire only", 1]], "n_with_bays": 69}, "Scandinavia · Hotel/resort with simulator": {"total": 2, "insights": {"scale_effect": [{"feature": "F&B", "1–2 bays": 100, "3–5 bays": null, "6+ bays": null}, {"feature": "Corporate Events", "1–2 bays": 50, "3–5 bays": null, "6+ bays": null}, {"feature": "Membership offered", "1–2 bays": 0, "3–5 bays": null, "6+ bays": null}]}, "n_with_year": 0, "n_with_tech": 1, "n_with_booking": 1, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, "total_bays": 3, "median_bays": 1.5, "mean_bays": 1.5, "bay_buckets": [["1–2 bays", 2]], "top_cities": [["Helsingborg", 2]], "countries": [["Sweden", 2]], "categories": [["Hotel/resort with simulator", 2]], "chain_pct": 0, "indep_count": 2, "chain_count": 0, "price": {"min": 15, "max": 15, "median": 15, "mean": 15.4, "count": 1, "tiers": [["Under 20", 1]]}, "membership": {}, "technology": [["TrackMan", 1]], "booking": [["Sweetspot", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Food & Drink", 100]], "programmes": [["Taster sessions", 100]], "ce": {"avg_rating": 4.4, "high_rated_pct": 50, "median_reviews": 185}, "top_chains": [], "access": [["Hotel/club guests only", 1], ["Public — pay per hour", 1]], "n_with_bays": 2}, "Scandinavia · Coaching studio": {"total": 64, "insights": {"best_year": {"year": 2023, "count": 6}, "booking_gap": 8, "leagues_no_comp": 19, "scale_effect": [{"feature": "F&B", "1–2 bays": 36, "3–5 bays": 67, "6+ bays": null}, {"feature": "Corporate Events", "1–2 bays": 38, "3–5 bays": 67, "6+ bays": null}, {"feature": "Membership offered", "1–2 bays": 34, "3–5 bays": 33, "6+ bays": null}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Finland", "share": 88, "n": 41}, {"country": "Norway", "share": 78, "n": 9}]}}, "n_with_year": 19, "n_with_tech": 59, "n_with_booking": 54, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 3, 0, 6, 4, 2, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 0, 0, 3, 3, 9, 13, 15, 15]}, "total_bays": 87, "median_bays": 1, "mean_bays": 1.4, "bay_buckets": [["1–2 bays", 58], ["3–5 bays", 3]], "top_cities": [["Tampere", 10], ["Vantaa", 9], ["Espoo", 7], ["Jyväskylä", 6], ["Oulu", 6], ["Helsinki", 2], ["Lahti", 2], ["Umeå", 2], ["Randers", 1], ["Vaasa", 1], ["Kuopio", 1], ["E Thomas Rd", 1], ["E Stacy Rd #130", 1], ["TX 75036", 1], ["Ålesund", 1]], "countries": [["Finland", 44], ["Norway", 10], ["Sweden", 8], ["Denmark", 2]], "categories": [["Coaching studio", 64]], "chain_pct": 12, "indep_count": 56, "chain_count": 8, "price": {"min": 1, "max": 30, "median": 13, "mean": 13.1, "count": 42, "tiers": [["Under 20", 39], ["20–29", 3]]}, "membership": {"count": 18, "pct": 28, "median": 22, "mean": 63.3, "tiers": [["Under 30", 10], ["30–59", 2], ["60–99", 2], ["100–149", 2], ["150+", 2]]}, "technology": [["TrackMan", 51], ["Foresight", 4], ["other", 1], ["FlightScope", 1], ["state-of-the-art curved projection 3D simulator", 1], ["Full Swing", 1]], "booking": [["Native Website", 7], ["Sweetspot", 6], ["Thril", 3], ["play.fi", 3], ["MATCHi", 3], ["Cintoia", 2], ["Phone or email", 1], ["GolfBox", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 89], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.57, "high_rated_pct": 71, "median_reviews": 10}, "top_chains": [["Golf Studio Jyväskylä", 3], ["Golf Studios", 3], ["Passion Golf Studio", 2]], "access": [["Public — pay per hour", 46], ["Lessons only", 10], ["Mixed access", 3], ["Members only", 1]], "n_with_bays": 61}, "Scandinavia · Entertainment venue": {"total": 15, "insights": {"best_year": {"year": 2021, "count": 1}, "leagues_no_comp": 7, "scale_effect": [{"feature": "F&B", "1–2 bays": 70, "3–5 bays": 100, "6+ bays": 0}, {"feature": "Corporate Events", "1–2 bays": 80, "3–5 bays": 100, "6+ bays": 100}, {"feature": "Membership offered", "1–2 bays": 40, "3–5 bays": 0, "6+ bays": 0}]}, "n_with_year": 3, "n_with_tech": 12, "n_with_booking": 13, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2], "ytd_2026": 1, "projected_2026": 3, "cumulative": [0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3]}, "total_bays": 37, "median_bays": 2.0, "mean_bays": 2.6, "bay_buckets": [["1–2 bays", 10], ["3–5 bays", 3], ["6+ bays", 1]], "top_cities": [["Oslo", 3], ["Uppsala", 3], ["Odense", 1], ["Copenhagen", 1], ["Helsinki", 1], ["Stockholm", 1], ["Lund", 1], ["Norrköping", 1], ["Gothenburg", 1], ["Luleå", 1]], "countries": [["Sweden", 8], ["Denmark", 3], ["Norway", 3], ["Finland", 1]], "categories": [["Entertainment venue", 15]], "chain_pct": 0, "indep_count": 15, "chain_count": 0, "price": {"min": 2, "max": 28, "median": 19, "mean": 15.8, "count": 7, "tiers": [["Under 20", 5], ["20–29", 2]]}, "membership": {"count": 4, "pct": 27, "median": 60, "mean": 73.9, "tiers": [["Under 30", 1], ["30–59", 1], ["60–99", 1], ["150+", 1]]}, "technology": [["TrackMan", 6], ["Foresight", 2], ["FullSwing/E6 system", 1], ["PGA Wide Screen Simulator", 1], ["HD Golf", 1], ["True Golf", 1]], "booking": [["MATCHi", 2], ["Sweetspot", 2], ["MyBowlingPassport", 1], ["Halbooking", 1], ["easyplay.no/clubs/folkehallene", 1], ["MATCHi (www.matchi.se/facilities/Nordicpadelrodtvet)", 1], ["Padel Mates", 1], ["ballbreaker.se or phone 08-617 00 00", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Food & Drink", 100], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100]], "ce": {"avg_rating": 4.66, "high_rated_pct": 64, "median_reviews": 13}, "top_chains": [], "access": [["Public — pay per hour", 9], ["Mixed access", 1], ["Members only", 1]], "n_with_bays": 14}, "Scandinavia · Driving range with tracking": {"total": 21, "insights": {"best_year": {"year": 2022, "count": 1}, "leagues_no_comp": 11, "scale_effect": [{"feature": "F&B", "1–2 bays": 100, "3–5 bays": 100, "6+ bays": 61}, {"feature": "Corporate Events", "1–2 bays": 100, "3–5 bays": 100, "6+ bays": 78}, {"feature": "Membership offered", "1–2 bays": 0, "3–5 bays": 100, "6+ bays": 28}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "Denmark", "share": 100, "n": 8}, {"country": "Norway", "share": 88, "n": 8}]}}, "n_with_year": 6, "n_with_tech": 20, "n_with_booking": 18, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 2]}, "total_bays": 263, "median_bays": 10.0, "mean_bays": 13.2, "bay_buckets": [["1–2 bays", 1], ["3–5 bays", 1], ["6+ bays", 18]], "top_cities": [["Oslo", 4], ["Copenhagen", 3], ["Roskilde", 2], ["Drammen", 2], ["Aarhus", 1], ["Odense", 1], ["Randers", 1], ["Tampere", 1], ["Kristiansand", 1], ["Trondheim", 1], ["Linköping", 1], ["Umeå", 1], ["Stockholm", 1]], "countries": [["Denmark", 9], ["Norway", 8], ["Sweden", 3], ["Finland", 1]], "categories": [["Driving range with tracking", 21]], "chain_pct": 0, "indep_count": 21, "chain_count": 0, "price": {"min": 4, "max": 45, "median": 21, "mean": 22.6, "count": 11, "tiers": [["Under 20", 4], ["20–29", 4], ["30–39", 2], ["40–49", 1]]}, "membership": {"count": 5, "pct": 24, "median": 45, "mean": 34.4, "tiers": [["Under 30", 2], ["30–59", 3]]}, "technology": [["TrackMan", 17], ["Trackman | Full Swing | X-Golf", 1], ["Trackman, Foresight", 1], ["Toptracer", 1]], "booking": [["GolfBox", 2], ["AlbaPlay", 2], ["MATCHi", 2], ["Sweetspot app or halbooking.dk", 1], ["TrackMan Golf", 1], ["Phone or website (wannasport.com for some)", 1], ["BookGolf", 1], ["Your Golf Booking", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 93], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100]], "ce": {"avg_rating": 4.54, "high_rated_pct": 53, "median_reviews": 68}, "top_chains": [], "access": [["Public — pay per hour", 11], ["Mixed access", 3], ["Lessons only", 1], ["Private hire only", 1]], "n_with_bays": 20}, "Japan · All venue types": {"total": 1033, "insights": {"best_year": {"year": 2025, "count": 62}, "tech_premium": {"top": "Golfzon", "top_price": 7, "top_n": 36, "cmp": "OK ON GOLF", "cmp_price": 8, "cmp_n": 13, "pct": -12}, "chain_premium": {"chain_med": 3, "indep_med": 13, "chain_n": 37, "indep_n": 94, "pct": -77}, "booking_gap": 196, "leagues_no_comp": 157, "scale_effect": [{"feature": "F&B", "1–2 bays": 27, "3–5 bays": 27, "6+ bays": 24}, {"feature": "Corporate Events", "1–2 bays": 52, "3–5 bays": 21, "6+ bays": 21}, {"feature": "Membership offered", "1–2 bays": 58, "3–5 bays": 50, "6+ bays": 62}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 4.1, "pct_3plus": 67, "n": 9}, {"cohort": "2020–2022", "avg_bays": 3.3, "pct_3plus": 44, "n": 34}, {"cohort": "2023–2026", "avg_bays": 2.8, "pct_3plus": 35, "n": 126}]}, "n_with_year": 211, "n_with_tech": 751, "n_with_booking": 796, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [2, 0, 0, 0, 5, 3, 16, 27, 35, 31, 62, 24], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 48], "ytd_2026": 24, "projected_2026": 72, "cumulative": [5, 5, 5, 5, 10, 13, 29, 56, 91, 122, 184, 208]}, "total_bays": 2604, "median_bays": 2.0, "mean_bays": 3.4, "bay_buckets": [["1–2 bays", 449], ["3–5 bays", 195], ["6+ bays", 128]], "top_cities": [["Tokyo", 365], ["Osaka", 85], ["Yokohama", 68], ["Kawasaki", 62], ["Saitama", 56], ["Nagoya", 48], ["Chiba", 35], ["Fukuoka", 35], ["Kobe", 31], ["Hamamatsu", 29], ["Kumamoto", 29], ["Kyoto", 28], ["Sendai", 27], ["Sapporo", 26], ["Okayama", 23]], "countries": [["Japan", 1033]], "categories": [["Off-course simulator venue", 737], ["Coaching studio", 169], ["Entertainment venue", 56], ["Golf course with simulator", 45], ["Driving range with tracking", 26]], "chain_pct": 21, "indep_count": 819, "chain_count": 214, "price": {"min": 1, "max": 46, "median": 8, "mean": 12.5, "count": 131, "tiers": [["Under 20", 99], ["20–29", 20], ["30–39", 8], ["40–49", 4]]}, "membership": {"count": 19, "pct": 2, "median": 46, "mean": 57.3, "tiers": [["Under 30", 6], ["30–59", 6], ["60–99", 5], ["100–149", 1], ["150+", 1]]}, "technology": [["Golfzon", 169], ["OK ON GOLF", 81], ["TrackMan", 63], ["SkyTrak", 36], ["SDR", 33], ["High-performance simulator (brand unspecified)", 14], ["Uneekor", 10], ["Ditect", 10]], "booking": [["hacomono", 88], ["Coubic", 24], ["LINE", 23], ["Phone", 19], ["smartphone app", 17], ["App", 14], ["Revn", 13], ["hacomono.jp", 9]], "engagement": [["Coaching", 94], ["Corporate Events", 95], ["Private Hire", 98], ["Social Events", 94], ["Custom Fitting", 72], ["Food & Drink", 58], ["Group Coaching", 82]], "programmes": [["Beginner programme", 99], ["Junior programme", 98], ["Women's sessions", 96], ["Family golf", 99], ["Taster sessions", 100]], "ce": {"avg_rating": 4.64, "high_rated_pct": 79, "median_reviews": 16}, "top_chains": [["SMART GOLF", 41], ["Lounge Range", 39], ["ZENGOLF RANGE", 23], ["My Golf", 20], ["Step Golf", 12], ["Chicken Golf", 11], ["Watashi no Golf", 9], ["FiT24 Indoor Golf", 8], ["GOLF NEXT24", 8], ["DOOR TO GOLF", 7]], "access": [["Members only", 550], ["Public — pay per hour", 193], ["Lessons only", 128], ["Mixed access", 117], ["Private hire only", 3]], "n_with_bays": 772}, "Japan · Off-course simulator venue": {"total": 737, "insights": {"best_year": {"year": 2025, "count": 49}, "tech_premium": {"top": "Golfzon", "top_price": 9, "top_n": 24, "cmp": "OK ON GOLF", "cmp_price": 6, "cmp_n": 11, "pct": 50}, "chain_premium": {"chain_med": 3, "indep_med": 12, "chain_n": 25, "indep_n": 48, "pct": -75}, "booking_gap": 147, "leagues_no_comp": 99, "scale_effect": [{"feature": "F&B", "1–2 bays": 22, "3–5 bays": 25, "6+ bays": 21}, {"feature": "Corporate Events", "1–2 bays": 56, "3–5 bays": 20, "6+ bays": 18}, {"feature": "Membership offered", "1–2 bays": 68, "3–5 bays": 59, "6+ bays": 69}], "size_trend": [{"cohort": "2020–2022", "avg_bays": 3.0, "pct_3plus": 42, "n": 24}, {"cohort": "2023–2026", "avg_bays": 2.6, "pct_3plus": 32, "n": 107}]}, "n_with_year": 169, "n_with_tech": 530, "n_with_booking": 579, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [1, 0, 0, 0, 3, 1, 11, 20, 29, 28, 49, 23], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 46], "ytd_2026": 23, "projected_2026": 69, "cumulative": [3, 3, 3, 3, 6, 7, 18, 38, 67, 95, 144, 167]}, "total_bays": 1686, "median_bays": 2, "mean_bays": 3.0, "bay_buckets": [["1–2 bays", 335], ["3–5 bays", 135], ["6+ bays", 89]], "top_cities": [["Tokyo", 271], ["Osaka", 65], ["Kawasaki", 56], ["Yokohama", 55], ["Saitama", 48], ["Nagoya", 31], ["Fukuoka", 26], ["Chiba", 24], ["Hamamatsu", 20], ["Kobe", 19], ["Kumamoto", 16], ["Kyoto", 14], ["Sendai", 13], ["Sapporo", 13], ["Naha", 13]], "countries": [["Japan", 737]], "categories": [["Off-course simulator venue", 737]], "chain_pct": 22, "indep_count": 573, "chain_count": 164, "price": {"min": 3, "max": 46, "median": 5, "mean": 11.6, "count": 73, "tiers": [["Under 20", 57], ["20–29", 9], ["30–39", 6], ["40–49", 1]]}, "membership": {"count": 13, "pct": 2, "median": 46, "mean": 58.4, "tiers": [["Under 30", 4], ["30–59", 4], ["60–99", 4], ["150+", 1]]}, "technology": [["Golfzon", 131], ["OK ON GOLF", 73], ["TrackMan", 33], ["SDR", 29], ["SkyTrak", 23], ["Uneekor", 9], ["Ditect", 9], ["High-performance simulator (brand unspecified)", 9]], "booking": [["hacomono", 80], ["LINE", 19], ["smartphone app", 17], ["Coubic", 16], ["App", 14], ["Revn", 13], ["Phone", 8], ["専用アプリ", 7]], "engagement": [["Coaching", 94], ["Corporate Events", 96], ["Private Hire", 99], ["Social Events", 94], ["Custom Fitting", 70], ["Food & Drink", 50], ["Group Coaching", 84]], "programmes": [["Beginner programme", 99], ["Junior programme", 98], ["Women's sessions", 96], ["Family golf", 99], ["Taster sessions", 100]], "ce": {"avg_rating": 4.66, "high_rated_pct": 81, "median_reviews": 15}, "top_chains": [["SMART GOLF", 37], ["Lounge Range", 33], ["ZENGOLF RANGE", 20], ["My Golf", 19], ["Step Golf", 10], ["Watashi no Golf", 9], ["GOLF NEXT24", 8], ["FiT24 Indoor Golf", 7], ["Wise One Golf", 4], ["DOOR TO GOLF", 3]], "access": [["Members only", 466], ["Public — pay per hour", 131], ["Mixed access", 78], ["Lessons only", 41]], "n_with_bays": 559}, "Japan · Golf course with simulator": {"total": 45, "insights": {"best_year": {"year": 2025, "count": 3}, "leagues_no_comp": 11, "scale_effect": [{"feature": "F&B", "1–2 bays": 47, "3–5 bays": 45, "6+ bays": 0}, {"feature": "Corporate Events", "1–2 bays": 53, "3–5 bays": 0, "6+ bays": 0}, {"feature": "Membership offered", "1–2 bays": 20, "3–5 bays": 27, "6+ bays": 60}]}, "n_with_year": 6, "n_with_tech": 31, "n_with_booking": 31, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 3, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 0, 1, 1, 2, 3, 3, 6, 6]}, "total_bays": 102, "median_bays": 3, "mean_bays": 3.3, "bay_buckets": [["1–2 bays", 15], ["3–5 bays", 11], ["6+ bays", 5]], "top_cities": [["Tokyo", 14], ["Kyoto", 5], ["Yokohama", 3], ["Osaka", 3], ["Kobe", 2], ["Kumamoto", 2], ["Kanazawa", 2], ["Fukuoka", 2], ["Okayama", 2], ["Sapporo", 2], ["Sendai", 2], ["Hamamatsu", 1], ["Chiba", 1], ["Matsuyama", 1], ["Saitama", 1]], "countries": [["Japan", 45]], "categories": [["Golf course with simulator", 45]], "chain_pct": 13, "indep_count": 39, "chain_count": 6, "price": {"min": 3, "max": 35, "median": 16, "mean": 17.3, "count": 4, "tiers": [["Under 20", 3], ["30–39", 1]]}, "membership": {}, "technology": [["Golfzon", 6], ["SkyTrak", 3], ["OK ON GOLF", 3], ["TrackMan", 2], ["X-Golf", 1], ["Unknown (large screen simulator)", 1], ["GOLFZON, Dunlop", 1], ["Garmin R50 (4 bays), SkyTrak (1 bay)", 1]], "booking": [["hacomono", 3], ["Phone", 2], ["Coubic", 2], ["Phone (03-6441-2865) or reservation site", 1], ["スマホで簡単予約", 1], ["Phone reservation (078-251-7171)", 1], ["Gurunavi", 1], ["hacomono.jp", 1]], "engagement": [["Coaching", 94], ["Corporate Events", 92], ["Private Hire", 94], ["Social Events", 94], ["Custom Fitting", 83], ["Food & Drink", 90], ["Group Coaching", 78]], "programmes": [["Beginner programme", 95], ["Junior programme", 92], ["Women's sessions", 83], ["Family golf", 86], ["Taster sessions", 94]], "ce": {"avg_rating": 4.47, "high_rated_pct": 56, "median_reviews": 15}, "top_chains": [["Lounge Range", 5], ["ZENGOLF RANGE", 1]], "access": [["Members only", 17], ["Public — pay per hour", 10], ["Lessons only", 9], ["Mixed access", 3]], "n_with_bays": 31}, "Japan · Hotel/resort with simulator": null, "Japan · Coaching studio": {"total": 169, "insights": {"best_year": {"year": 2022, "count": 5}, "chain_premium": {"chain_med": 2, "indep_med": 12, "chain_n": 8, "indep_n": 18, "pct": -83}, "booking_gap": 49, "leagues_no_comp": 28, "scale_effect": [{"feature": "F&B", "1–2 bays": 20, "3–5 bays": 6, "6+ bays": 21}, {"feature": "Corporate Events", "1–2 bays": 32, "3–5 bays": 12, "6+ bays": 21}, {"feature": "Membership offered", "1–2 bays": 37, "3–5 bays": 39, "6+ bays": 36}], "size_trend": [{"cohort": "2020–2022", "avg_bays": 3.7, "pct_3plus": 43, "n": 7}, {"cohort": "2023–2026", "avg_bays": 2.4, "pct_3plus": 33, "n": 9}]}, "n_with_year": 24, "n_with_tech": 133, "n_with_booking": 117, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [1, 0, 0, 0, 2, 1, 4, 5, 3, 2, 4, 1], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2], "ytd_2026": 1, "projected_2026": 3, "cumulative": [2, 2, 2, 2, 4, 5, 9, 14, 17, 19, 23, 24]}, "total_bays": 329, "median_bays": 2.0, "mean_bays": 2.8, "bay_buckets": [["1–2 bays", 71], ["3–5 bays", 33], ["6+ bays", 14]], "top_cities": [["Tokyo", 55], ["Osaka", 13], ["Niigata", 10], ["Nagoya", 10], ["Sendai", 9], ["Yokohama", 8], ["Hamamatsu", 7], ["Saitama", 7], ["Kobe", 7], ["Sapporo", 7], ["Chiba", 6], ["Kumamoto", 6], ["Hiroshima", 5], ["Kawasaki", 5], ["Kyoto", 4]], "countries": [["Japan", 169]], "categories": [["Coaching studio", 169]], "chain_pct": 25, "indep_count": 127, "chain_count": 42, "price": {"min": 1, "max": 46, "median": 7, "mean": 11.7, "count": 26, "tiers": [["Under 20", 20], ["20–29", 4], ["40–49", 2]]}, "membership": {"count": 3, "pct": 2, "median": 35, "mean": 36.5, "tiers": [["Under 30", 1], ["30–59", 2]]}, "technology": [["Golfzon", 28], ["TrackMan", 13], ["SkyTrak", 10], ["GOLFTEC", 5], ["OK ON GOLF", 5], ["FlightScope", 4], ["SDR", 3], ["High-performance simulator (brand unspecified)", 3]], "booking": [["Coubic", 6], ["hacomono", 5], ["LINE", 3], ["Phone", 3], ["hacomono.jp", 2], ["Phone / LINE reservation", 1], ["hacomono.jp reservation site / LINE", 1], ["Phone or on-site reservation form", 1]], "engagement": [["Coaching", 99], ["Corporate Events", 85], ["Private Hire", 93], ["Social Events", 89], ["Custom Fitting", 83], ["Food & Drink", 43], ["Group Coaching", 77]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.66, "high_rated_pct": 77, "median_reviews": 17}, "top_chains": [["Chicken Golf", 10], ["GolfTec", 5], ["Rizap Golf", 5], ["DOOR TO GOLF", 4], ["SMART GOLF", 4], ["STEPGOLF EXtra", 4], ["ZENGOLF ACADEMY", 4], ["Step Golf", 2], ["FiT24 Indoor Golf", 1], ["Lounge Range", 1]], "access": [["Lessons only", 77], ["Members only", 47], ["Mixed access", 27], ["Public — pay per hour", 7]], "n_with_bays": 118}, "Japan · Entertainment venue": {"total": 56, "insights": {"best_year": {"year": 2025, "count": 4}, "leagues_no_comp": 13, "scale_effect": [{"feature": "F&B", "1–2 bays": 96, "3–5 bays": 100, "6+ bays": 100}, {"feature": "Corporate Events", "1–2 bays": 56, "3–5 bays": 82, "6+ bays": 50}, {"feature": "Membership offered", "1–2 bays": 15, "3–5 bays": 0, "6+ bays": 50}]}, "n_with_year": 7, "n_with_tech": 31, "n_with_booking": 44, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 4, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 6, 6]}, "total_bays": 91, "median_bays": 2.0, "mean_bays": 2.3, "bay_buckets": [["1–2 bays", 27], ["3–5 bays", 11], ["6+ bays", 2]], "top_cities": [["Tokyo", 18], ["Nagoya", 5], ["Okayama", 4], ["Fukuoka", 4], ["Osaka", 4], ["Kyoto", 3], ["Sapporo", 3], ["Naha", 2], ["Hiroshima", 2], ["Sendai", 2], ["Chiba", 2], ["Matsuyama", 2], ["Hokkaido", 1], ["Yokohama", 1], ["Kumamoto", 1]], "countries": [["Japan", 56]], "categories": [["Entertainment venue", 56]], "chain_pct": 0, "indep_count": 56, "chain_count": 0, "price": {"min": 5, "max": 42, "median": 16, "mean": 18.0, "count": 22, "tiers": [["Under 20", 13], ["20–29", 7], ["30–39", 1], ["40–49", 1]]}, "membership": {"count": 2, "pct": 4, "median": 79, "mean": 78.8, "tiers": [["Under 30", 1], ["100–149", 1]]}, "technology": [["TrackMan", 7], ["JoyGolf Smart+", 3], ["Unknown (latest golf simulator with slope adjustment)", 1], ["Golfzon JoyGolf smart+", 1], ["Golfzon / Xswing", 1], ["Unknown (features divot sensing high-performance sensor)", 1], ["不明", 1], ["latest simulator", 1]], "booking": [["Phone", 6], ["Hot Pepper", 3], ["Hotpepper", 2], ["Hot Pepper Gourmet", 2], ["Golren", 1], ["LINE reservation, Web reservation", 1], ["Phone or website reservation", 1], ["LINE / Web (unmanned reservation and payment)", 1]], "engagement": [["Coaching", 60], ["Corporate Events", 100], ["Private Hire", 97], ["Social Events", 100], ["Custom Fitting", 0], ["Food & Drink", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.56, "high_rated_pct": 66, "median_reviews": 25}, "top_chains": [], "access": [["Public — pay per hour", 40], ["Mixed access", 6], ["Members only", 4], ["Private hire only", 3]], "n_with_bays": 40}, "Japan · Driving range with tracking": {"total": 26, "insights": {"best_year": {"year": 2025, "count": 2}, "leagues_no_comp": 6, "scale_effect": [{"feature": "F&B", "1–2 bays": 0, "3–5 bays": 20, "6+ bays": 39}, {"feature": "Corporate Events", "1–2 bays": 100, "3–5 bays": 0, "6+ bays": 39}, {"feature": "Membership offered", "1–2 bays": 100, "3–5 bays": 60, "6+ bays": 56}]}, "n_with_year": 5, "n_with_tech": 26, "n_with_booking": 25, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 2, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 5, 5]}, "total_bays": 396, "median_bays": 9.5, "mean_bays": 16.5, "bay_buckets": [["1–2 bays", 1], ["3–5 bays", 5], ["6+ bays", 18]], "top_cities": [["Tokyo", 7], ["Kumamoto", 4], ["Okayama", 3], ["Kobe", 2], ["Chiba", 2], ["Kyoto", 2], ["Nagoya", 1], ["Hamamatsu", 1], ["Yokohama", 1], ["Naha", 1], ["Sendai", 1], ["Sapporo", 1]], "countries": [["Japan", 26]], "categories": [["Driving range with tracking", 26]], "chain_pct": 8, "indep_count": 24, "chain_count": 2, "price": {"min": 3, "max": 8, "median": 3, "mean": 4.4, "count": 6, "tiers": [["Under 20", 6]]}, "membership": {"count": 1, "pct": 4, "median": 63, "mean": 63.0, "tiers": [["60–99", 1]]}, "technology": [["TrackMan", 8], ["Golfzon", 3], ["FlightScope (with mentions of Full Swing)", 1], ["TrackMan 4, Golfzon, Detect Prism", 1], ["OK ON GOLF (3 bays), Trackman iO DUO (1 bay)", 1], ["Trackman (4 simulators + 1 Trackman)", 1], ["Trackman 4, Danropp SDR, GolfVision", 1], ["JoyGolf or GOLFZON (chain standard)", 1]], "booking": [["Website MY PAGE / WEB entry", 1], ["Proprietary reservation system (完全予約制 via website form)", 1], ["LINE", 1], ["feelsgolf.jp web reservation", 1], ["Own reservation system", 1], ["Custom reservation system (会員様向け予約)", 1], ["hacomono.jp", 1], ["Proprietary web reservation system", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 80], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.65, "high_rated_pct": 73, "median_reviews": 24}, "top_chains": [["ZENGOLF RANGE", 2]], "access": [["Members only", 16], ["Public — pay per hour", 5], ["Mixed access", 3], ["Lessons only", 1]], "n_with_bays": 24}, "Australia & NZ · All venue types": {"total": 204, "insights": {"best_year": {"year": 2011, "count": 32}, "tech_premium": {"top": "TrackMan", "top_price": 23, "top_n": 46, "cmp": "X-Golf", "cmp_price": 20, "cmp_n": 32, "pct": 15}, "chain_premium": {"chain_med": 20, "indep_med": 22, "chain_n": 66, "indep_n": 107, "pct": -9}, "booking_gap": 8, "leagues_no_comp": 37, "scale_effect": [{"feature": "F&B", "1–2 bays": 56, "3–5 bays": 53, "6+ bays": 86}, {"feature": "Corporate Events", "1–2 bays": 67, "3–5 bays": 55, "6+ bays": 86}, {"feature": "Membership offered", "1–2 bays": 44, "3–5 bays": 68, "6+ bays": 76}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 7.3, "pct_3plus": 91, "n": 45}, {"cohort": "2020–2022", "avg_bays": 6.5, "pct_3plus": 100, "n": 11}, {"cohort": "2023–2026", "avg_bays": 9.1, "pct_3plus": 86, "n": 37}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "New Zealand", "share": 36, "n": 39}, {"country": "Australia", "share": 32, "n": 142}]}, "price_by_country": [{"country": "New Zealand", "median": 23, "n": 42}, {"country": "Australia", "median": 20, "n": 131}]}, "n_with_year": 138, "n_with_tech": 181, "n_with_booking": 184, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [2, 1, 2, 6, 1, 25, 8, 5, 13, 11, 20, 5], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10], "ytd_2026": 5, "projected_2026": 15, "cumulative": [38, 39, 41, 47, 48, 73, 81, 86, 99, 110, 130, 135]}, "total_bays": 976, "median_bays": 6.0, "mean_bays": 7.2, "bay_buckets": [["1–2 bays", 18], ["3–5 bays", 47], ["6+ bays", 71]], "top_cities": [["Melbourne", 31], ["Sydney", 31], ["Brisbane", 19], ["Perth", 16], ["Auckland", 16], ["Adelaide", 12], ["Gold Coast", 7], ["Christchurch", 7], ["Tauranga", 7], ["Geelong", 6], ["Hamilton", 5], ["Canberra", 4], ["Sunshine Coast", 4], ["Newcastle", 4], ["Queenstown", 4]], "countries": [["Australia", 156], ["New Zealand", 48]], "categories": [["Off-course simulator venue", 166], ["Golf course with simulator", 19], ["Entertainment venue", 8], ["Coaching studio", 6], ["Driving range with tracking", 4], ["Hotel/resort with simulator", 1]], "chain_pct": 35, "indep_count": 133, "chain_count": 71, "price": {"min": 1, "max": 72, "median": 20, "mean": 21.6, "count": 173, "tiers": [["Under 20", 67], ["20–29", 89], ["30–39", 13], ["40–49", 3], ["50+", 1]]}, "membership": {"count": 114, "pct": 56, "median": 52, "mean": 55.6, "tiers": [["Under 30", 36], ["30–59", 48], ["60–99", 18], ["100–149", 8], ["150+", 4]]}, "technology": [["TrackMan", 59], ["X-Golf", 32], ["Full Swing", 27], ["Uneekor", 5], ["Foresight", 5], ["TrackMan Simulator", 4], ["X-Golf Indoor Golf Simulator", 4], ["FlightScope", 3]], "booking": [["Native Website", 60], ["Meriq", 31], ["Your Golf Booking", 16], ["GymMaster", 11], ["TrackMan Booking", 4], ["MiClub", 4], ["SevenRooms", 4], ["Momence", 4]], "engagement": [["Coaching", 96], ["Corporate Events", 99], ["Private Hire", 99], ["Social Events", 99], ["Custom Fitting", 91], ["Food & Drink", 97], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.73, "high_rated_pct": 85, "median_reviews": 56}, "top_chains": [["X-Golf", 33], ["Big Swing Golf", 25], ["Hey Caddy", 4], ["Golf 24", 3], ["Five Iron Golf", 2], ["GolfTec", 1], ["Send It! Social Club", 1], ["Swing Suite", 1], ["Topgolf", 1]], "access": [["Public — pay per hour", 128], ["Mixed access", 44], ["Members only", 11], ["Lessons only", 6], ["Private hire only", 1]], "n_with_bays": 136}, "Australia & NZ · Off-course simulator venue": {"total": 166, "insights": {"best_year": {"year": 2011, "count": 32}, "tech_premium": {"top": "TrackMan", "top_price": 22, "top_n": 37, "cmp": "X-Golf", "cmp_price": 20, "cmp_n": 32, "pct": 10}, "chain_premium": {"chain_med": 20, "indep_med": 23, "chain_n": 63, "indep_n": 89, "pct": -13}, "booking_gap": 8, "leagues_no_comp": 26, "scale_effect": [{"feature": "F&B", "1–2 bays": 46, "3–5 bays": 54, "6+ bays": 89}, {"feature": "Corporate Events", "1–2 bays": 77, "3–5 bays": 56, "6+ bays": 89}, {"feature": "Membership offered", "1–2 bays": 62, "3–5 bays": 71, "6+ bays": 79}], "size_trend": [{"cohort": "Pre-2020", "avg_bays": 5.8, "pct_3plus": 97, "n": 39}, {"cohort": "2020–2022", "avg_bays": 7.2, "pct_3plus": 100, "n": 8}, {"cohort": "2023–2026", "avg_bays": 6.1, "pct_3plus": 84, "n": 32}], "tech_by_country": {"brand": "TrackMan", "rows": [{"country": "New Zealand", "share": 35, "n": 34}, {"country": "Australia", "share": 25, "n": 114}]}, "price_by_country": [{"country": "New Zealand", "median": 23, "n": 37}, {"country": "Australia", "median": 20, "n": 115}]}, "n_with_year": 117, "n_with_tech": 148, "n_with_booking": 156, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [2, 1, 2, 2, 0, 25, 4, 5, 10, 9, 17, 5], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10], "ytd_2026": 5, "projected_2026": 15, "cumulative": [36, 37, 39, 41, 41, 66, 70, 75, 85, 94, 111, 116]}, "total_bays": 687, "median_bays": 6.0, "mean_bays": 5.9, "bay_buckets": [["1–2 bays", 13], ["3–5 bays", 41], ["6+ bays", 62]], "top_cities": [["Melbourne", 25], ["Sydney", 24], ["Brisbane", 17], ["Perth", 14], ["Auckland", 14], ["Adelaide", 10], ["Tauranga", 5], ["Christchurch", 5], ["Hamilton", 5], ["Geelong", 4], ["Gold Coast", 4], ["Queenstown", 4], ["Sunshine Coast", 3], ["Newcastle", 3], ["Darwin", 3]], "countries": [["Australia", 125], ["New Zealand", 41]], "categories": [["Off-course simulator venue", 166]], "chain_pct": 40, "indep_count": 99, "chain_count": 67, "price": {"min": 1, "max": 46, "median": 20, "mean": 21.4, "count": 152, "tiers": [["Under 20", 60], ["20–29", 80], ["30–39", 9], ["40–49", 3]]}, "membership": {"count": 102, "pct": 61, "median": 52, "mean": 56.7, "tiers": [["Under 30", 31], ["30–59", 46], ["60–99", 14], ["100–149", 7], ["150+", 4]]}, "technology": [["TrackMan", 41], ["X-Golf", 32], ["Full Swing", 26], ["Uneekor", 5], ["TrackMan Simulator", 4], ["Foresight", 4], ["X-Golf Indoor Golf Simulator", 4], ["ProTee VX", 3]], "booking": [["Native Website", 53], ["Meriq", 31], ["Your Golf Booking", 11], ["GymMaster", 9], ["Momence", 4], ["GymMaster Online", 3], ["TrackMan Booking", 3], ["Timely", 3]], "engagement": [["Coaching", 95], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 87], ["Food & Drink", 98], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.77, "high_rated_pct": 90, "median_reviews": 52}, "top_chains": [["X-Golf", 33], ["Big Swing Golf", 25], ["Hey Caddy", 4], ["Golf 24", 3], ["Five Iron Golf", 2]], "access": [["Public — pay per hour", 113], ["Mixed access", 39], ["Members only", 5]], "n_with_bays": 116}, "Australia & NZ · Golf course with simulator": {"total": 19, "insights": {"best_year": {"year": 2021, "count": 2}, "leagues_no_comp": 8, "scale_effect": [{"feature": "F&B", "1–2 bays": 67, "3–5 bays": 67, "6+ bays": 33}, {"feature": "Corporate Events", "1–2 bays": 67, "3–5 bays": 67, "6+ bays": 0}, {"feature": "Membership offered", "1–2 bays": 0, "3–5 bays": 67, "6+ bays": 33}]}, "n_with_year": 7, "n_with_tech": 16, "n_with_booking": 12, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 1, 0, 0, 2, 0, 0, 0, 1, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [1, 1, 1, 2, 2, 2, 4, 4, 4, 4, 5, 5]}, "total_bays": 40, "median_bays": 4, "mean_bays": 4.4, "bay_buckets": [["1–2 bays", 3], ["3–5 bays", 3], ["6+ bays", 3]], "top_cities": [["Melbourne", 4], ["Sydney", 3], ["Geelong", 2], ["Cairns", 1], ["Brisbane", 1], ["Wollongong", 1], ["Sunshine Coast", 1], ["Adelaide", 1], ["Newcastle", 1], ["Gold Coast", 1], ["Christchurch", 1], ["Auckland", 1], ["Rotorua", 1]], "countries": [["Australia", 16], ["New Zealand", 3]], "categories": [["Golf course with simulator", 19]], "chain_pct": 0, "indep_count": 19, "chain_count": 0, "price": {"min": 5, "max": 72, "median": 18, "mean": 25.4, "count": 6, "tiers": [["Under 20", 3], ["20–29", 2], ["50+", 1]]}, "membership": {"count": 5, "pct": 26, "median": 25, "mean": 40.4, "tiers": [["Under 30", 3], ["60–99", 2]]}, "technology": [["TrackMan", 12], ["FlightScope", 3], ["Toptracer", 1]], "booking": [["MiClub", 4], ["Your Golf Booking", 2], ["Acuity Scheduling", 1], ["Timely", 1], ["Native Website", 1], ["miclub", 1], ["NowBookIt", 1], ["GymMaster", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 100], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100]], "ce": {"avg_rating": 4.38, "high_rated_pct": 50, "median_reviews": 197}, "top_chains": [], "access": [["Public — pay per hour", 5], ["Members only", 5], ["Lessons only", 3], ["Mixed access", 1], ["Private hire only", 1]], "n_with_bays": 9}, "Australia & NZ · Hotel/resort with simulator": {"total": 1, "insights": {"scale_effect": []}, "n_with_year": 0, "n_with_tech": 0, "n_with_booking": 0, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, "total_bays": 0, "median_bays": 0, "mean_bays": 0, "bay_buckets": [], "top_cities": [["Brisbane", 1]], "countries": [["Australia", 1]], "categories": [["Hotel/resort with simulator", 1]], "chain_pct": 0, "indep_count": 1, "chain_count": 0, "price": {"min": 23, "max": 23, "median": 23, "mean": 23.2, "count": 1, "tiers": [["20–29", 1]]}, "membership": {}, "technology": [], "booking": [], "engagement": [["Corporate Events", 100], ["Social Events", 100], ["Food & Drink", 100]], "programmes": [["Family golf", 100]], "ce": {"avg_rating": 4.7, "high_rated_pct": 100, "median_reviews": 108}, "top_chains": [], "access": [["Public — pay per hour", 1]], "n_with_bays": 0}, "Australia & NZ · Coaching studio": {"total": 6, "insights": {"best_year": {"year": 2018, "count": 1}, "scale_effect": [{"feature": "F&B", "1–2 bays": 100, "3–5 bays": 0, "6+ bays": 0}, {"feature": "Corporate Events", "1–2 bays": 0, "3–5 bays": 0, "6+ bays": 100}, {"feature": "Membership offered", "1–2 bays": 0, "3–5 bays": 50, "6+ bays": 100}]}, "n_with_year": 3, "n_with_tech": 6, "n_with_booking": 6, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3]}, "total_bays": 18, "median_bays": 3.5, "mean_bays": 4.5, "bay_buckets": [["1–2 bays", 1], ["3–5 bays", 2], ["6+ bays", 1]], "top_cities": [["Cairns", 1], ["Canberra", 1], ["Perth", 1], ["Melbourne", 1], ["Christchurch", 1], ["Tauranga", 1]], "countries": [["Australia", 4], ["New Zealand", 2]], "categories": [["Coaching studio", 6]], "chain_pct": 17, "indep_count": 5, "chain_count": 1, "price": {"min": 26, "max": 28, "median": 26, "mean": 26.6, "count": 3, "tiers": [["20–29", 3]]}, "membership": {"count": 2, "pct": 33, "median": 50, "mean": 49.7, "tiers": [["30–59", 2]]}, "technology": [["TrackMan", 2], ["TrackMan IO; TrackMan TM4", 1], ["Foresight", 1], ["Protee VX", 1], ["TrackMan Studio", 1]], "booking": [["Native Website", 4], ["Your Golf Booking", 1], ["GymMaster", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 50], ["Private Hire", 50], ["Social Events", 75], ["Custom Fitting", 100], ["Food & Drink", 33], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Taster sessions", 100]], "ce": {"avg_rating": 4.87, "high_rated_pct": 83, "median_reviews": 26}, "top_chains": [["GolfTec", 1]], "access": [["Lessons only", 3], ["Mixed access", 1], ["Members only", 1], ["Public — pay per hour", 1]], "n_with_bays": 4}, "Australia & NZ · Entertainment venue": {"total": 8, "insights": {"best_year": {"year": 2023, "count": 2}, "scale_effect": [{"feature": "F&B", "1–2 bays": null, "3–5 bays": 100, "6+ bays": 100}, {"feature": "Corporate Events", "1–2 bays": null, "3–5 bays": 100, "6+ bays": 100}, {"feature": "Membership offered", "1–2 bays": null, "3–5 bays": 0, "6+ bays": 67}]}, "n_with_year": 8, "n_with_tech": 7, "n_with_booking": 7, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 1, 1, 0, 1, 0, 2, 1, 2, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 1, 2, 2, 3, 3, 5, 6, 8, 8]}, "total_bays": 140, "median_bays": 23.0, "mean_bays": 35, "bay_buckets": [["3–5 bays", 1], ["6+ bays", 3]], "top_cities": [["Sydney", 2], ["Gold Coast", 2], ["Perth", 1], ["Adelaide", 1], ["Melbourne", 1], ["Auckland", 1]], "countries": [["Australia", 7], ["New Zealand", 1]], "categories": [["Entertainment venue", 8]], "chain_pct": 38, "indep_count": 5, "chain_count": 3, "price": {"min": 4, "max": 31, "median": 23, "mean": 21.3, "count": 8, "tiers": [["Under 20", 3], ["20–29", 2], ["30–39", 3]]}, "membership": {"count": 4, "pct": 50, "median": 40, "mean": 47.4, "tiers": [["Under 30", 2], ["60–99", 1], ["100–149", 1]]}, "technology": [["TrackMan", 3], ["Foresight FSX Play", 1], ["GolfSim Australia", 1], ["Full Swing", 1], ["Toptracer", 1]], "booking": [["SevenRooms", 2], ["Your Golf Booking", 1], ["ROLLER", 1], ["TrackMan", 1], ["Native Website", 1], ["Inflatable World", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 100]], "programmes": [["Junior programme", 100], ["Family golf", 100]], "ce": {"avg_rating": 4.54, "high_rated_pct": 62, "median_reviews": 300}, "top_chains": [["Send It! Social Club", 1], ["Swing Suite", 1], ["Topgolf", 1]], "access": [["Public — pay per hour", 6], ["Mixed access", 2]], "n_with_bays": 4}, "Australia & NZ · Driving range with tracking": {"total": 4, "insights": {"best_year": {"year": 2024, "count": 1}, "scale_effect": [{"feature": "F&B", "1–2 bays": 100, "3–5 bays": null, "6+ bays": 100}, {"feature": "Corporate Events", "1–2 bays": 0, "3–5 bays": null, "6+ bays": 100}, {"feature": "Membership offered", "1–2 bays": 0, "3–5 bays": null, "6+ bays": 50}]}, "n_with_year": 3, "n_with_tech": 4, "n_with_booking": 3, "growth": {"labels": ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026*"], "new": [0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0], "projection_delta": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "ytd_2026": 0, "projected_2026": 0, "cumulative": [0, 0, 0, 1, 1, 1, 1, 1, 2, 3, 3, 3]}, "total_bays": 91, "median_bays": 32, "mean_bays": 30.3, "bay_buckets": [["1–2 bays", 1], ["6+ bays", 2]], "top_cities": [["Sydney", 2], ["Canberra", 1], ["Tauranga", 1]], "countries": [["Australia", 3], ["New Zealand", 1]], "categories": [["Driving range with tracking", 4]], "chain_pct": 0, "indep_count": 4, "chain_count": 0, "price": {"min": 7, "max": 31, "median": 21, "mean": 19.4, "count": 3, "tiers": [["Under 20", 1], ["20–29", 1], ["30–39", 1]]}, "membership": {"count": 1, "pct": 25, "median": 67, "mean": 66.8, "tiers": [["60–99", 1]]}, "technology": [["TrackMan Studio", 1], ["Toptracer Range", 1], ["TrackMan", 1], ["Foresight Sports Hawk", 1]], "booking": [["TrackMan Booking", 1], ["Your Golf Booking", 1], ["Native Website", 1]], "engagement": [["Coaching", 100], ["Corporate Events", 100], ["Private Hire", 100], ["Social Events", 100], ["Custom Fitting", 100], ["Food & Drink", 100], ["Group Coaching", 100]], "programmes": [["Beginner programme", 100], ["Junior programme", 100], ["Women's sessions", 100], ["Family golf", 100]], "ce": {"avg_rating": 4.83, "high_rated_pct": 100, "median_reviews": 185}, "top_chains": [], "access": [["Public — pay per hour", 2], ["Mixed access", 1]], "n_with_bays": 3}}, "regions": ["All regions", "UK & Ireland", "Scandinavia", "Japan", "Australia & NZ"], "types": ["All venue types", "Off-course simulator venue", "Golf course with simulator", "Hotel/resort with simulator", "Coaching studio", "Entertainment venue", "Driving range with tracking"]};
+const SLICES = PAYLOAD.slices;
+const REGIONS = PAYLOAD.regions;
+const TYPES = PAYLOAD.types;
+
+const CORAL = '#FF6633';
+const CORAL_A = 'rgba(255,102,51,.5)';
+const BLUE = '#60a5fa';
+const GREEN = '#34d399';
+const AMBER = '#fbbf24';
+const PURPLE = '#a78bfa';
+const PINK = '#f472b6';
+const GRID = 'rgba(255,255,255,.06)';
+
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.font.family = "'Plus Jakarta Sans',system-ui,sans-serif";
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.plugins.tooltip.backgroundColor = '#2a2a2b';
+Chart.defaults.plugins.tooltip.borderColor = '#333335';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
+Chart.defaults.responsive = true;
+Chart.defaults.maintainAspectRatio = false;
+
+const DONUT_OPTS = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:true,position:'bottom',labels:{padding:14,usePointStyle:true,pointStyle:'circle',font:{size:11}}}},
+  cutout:'55%', layout:{padding:8}
+};
+const BAR_OPTS = (horiz, fmt) => ({
+  responsive:true, maintainAspectRatio:false,
+  indexAxis: horiz ? 'y' : 'x',
+  scales:{
+    [horiz?'x':'y']:{beginAtZero:true,grid:{color:GRID},ticks: fmt ? {callback: fmt} : undefined},
+    [horiz?'y':'x']:{grid:{display:false}}
+  }
+});
+
+// Track Chart.js instances so we can destroy them before re-rendering.
+const CHARTS = [];
+
+function safeChart(elId, config) {
+  const el = document.getElementById(elId);
+  if (!el) return null;
+  const c = new Chart(el, config);
+  CHARTS.push(c);
+  return c;
+}
+
+function destroyCharts() {
+  while (CHARTS.length) CHARTS.pop().destroy();
+}
+
+function fmt(v) { return (v ?? 0).toLocaleString(); }
+function pct(v) { return v + '%'; }
+
+function progressItem(label, val, color='coral') {
+  return `<div class="progress-item"><div class="progress-header"><span class="label">${label}</span><span class="value">${val}%</span></div><div class="progress-bar"><div class="progress-fill ${color}" data-width="${val}"></div></div></div>`;
+}
+
+function rowBars(items, totalLabel, color='coral') {
+  const max = Math.max(...items.map(i => i[1]));
+  if (!max) return '<p style="color:var(--gray2);font-size:13px">No data.</p>';
+  return items.map(([k, v]) => {
+    const w = Math.round(100 * v / max);
+    return `<div class="progress-item"><div class="progress-header"><span class="label">${k}</span><span class="value">${v}</span></div><div class="progress-bar"><div class="progress-fill ${color}" data-width="${w}"></div></div></div>`;
+  }).join('');
+}
+
+function tablePairs(items, limit=10) {
+  if (!items || !items.length) return '<p style="color:var(--gray2);font-size:13px">No data.</p>';
+  return `<table class="simple-table"><tbody>${items.slice(0, limit).map(([k,v]) => `<tr><td class="k">${k}</td><td class="v">${fmt(v)}</td></tr>`).join('')}</tbody></table>`;
+}
+
+function regionHeadline(region) {
+  return region === 'All regions' ? 'the global market' : `the ${region} market`;
+}
+
+function typeNoun(type, plural) {
+  if (type === 'All venue types') {
+    return plural
+      ? 'off-course simulator venues, golf courses with simulator suites, and driving ranges with smart bays'
+      : 'venue';
+  }
+  if (plural) {
+    // pluralise: 'Off-course simulator venue' → 'off-course simulator venues'
+    return type.toLowerCase().replace(/ with /g, ' with ').replace(/\bvenue\b/, 'venues').replace(/\bstudio\b/, 'studios').replace(/\brange\b/, 'ranges').replace(/\bcourse\b/, 'courses');
+  }
+  return type.toLowerCase();
+}
+
+function renderPanel(region, type, d) {
+  // All prices are normalised to GBP at the country's FX rate.
+  const curPrefix = '£';
+  const curSuffix = '';
+
+  const price = d.price || {};
+  const mem = d.membership || {};
+
+  const overviewDesc = `Across ${regionHeadline(region)} we've mapped ${fmt(d.total)} ${typeNoun(type, true)}. The figures below summarise capacity, technology mix, pricing, and operator landscape.`;
+
+  return `
+    <!-- OVERVIEW -->
+    <section>
+      <div class="container">
+        <p class="section-label reveal">${region} · ${type}</p>
+        <h2 class="section-title reveal">${fmt(d.total)} venues mapped</h2>
+        <p class="section-desc reveal">${overviewDesc}</p>
+        <div class="kpi-grid reveal">
+          <div class="kpi-card"><div class="kpi-value" data-count="${d.total}" data-separator=",">0</div><div class="kpi-label">Active venues</div></div>
+          <div class="kpi-card"><div class="kpi-value" data-count="${d.total_bays}" data-separator=",">0</div><div class="kpi-label">Total bays identified</div></div>
+          <div class="kpi-card"><div class="kpi-value" data-count="${d.mean_bays}" data-decimals="1">0</div><div class="kpi-label">Avg bays per venue</div></div>
+          ${price.median ? `<div class="kpi-card"><div class="kpi-value">${curPrefix}<span data-count="${price.median}" data-decimals="0">0</span></div><div class="kpi-label">Median hourly rate${curSuffix}</div></div>` : ''}
+          ${d.ce.avg_rating ? `<div class="kpi-card"><div class="kpi-value" data-count="${d.ce.avg_rating}" data-decimals="2">0</div><div class="kpi-label">Average Google rating</div></div>` : ''}
+          ${d.technology.length ? `<div class="kpi-card"><div class="kpi-value" data-count="${Math.round(100*d.technology[0][1]/d.total)}" data-suffix="%">0</div><div class="kpi-label">${d.technology[0][0]} share</div></div>` : ''}
+        </div>
+      </div>
+    </section>
+
+    <!-- GROWTH -->
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Market Growth</p>
+        <h2 class="section-title reveal">New venues by year</h2>
+        <p class="section-desc reveal">New venues by opening year, drawn from ${fmt(d.n_with_year)} venues with a recorded year. The 2026 bar shows ${d.growth.ytd_2026} venues opened year-to-date plus a projected ${d.growth.projected_2026 - d.growth.ytd_2026} (lighter shade) — annualised from four months of data.</p>
+        <div class="chart-row reveal">
+          <div class="chart-box">
+            <h3>New venues per year</h3>
+            <div class="chart-sub">2026 projection (annualised from Jan–Apr) shown in lighter shade.</div>
+            <div style="position:relative;height:280px"><canvas id="chart-growth"></canvas></div>
+          </div>
+          <div class="chart-box">
+            <h3>Cumulative venue count</h3>
+            <div class="chart-sub">Includes pre-2015 venues in the starting offset.</div>
+            <div style="position:relative;height:280px"><canvas id="chart-cumulative"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GEO -->
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Geographic Distribution</p>
+        <h2 class="section-title reveal">Where are the venues?</h2>
+        <p class="section-desc reveal">${region === 'All regions' ? `Coverage spans ${d.countries.length} countries.` : `Top cities by venue count and country split.`}</p>
+        <div class="chart-row reveal">
+          <div class="chart-box">
+            <h3>Top 15 cities by venue count</h3>
+            <div style="position:relative;height:480px"><canvas id="chart-cities"></canvas></div>
+          </div>
+          <div class="chart-box">
+            <h3>${region === 'All regions' ? 'By country' : 'Country breakdown'}</h3>
+            <div style="position:relative;height:260px"><canvas id="chart-countries"></canvas></div>
+            <h3 style="margin-top:32px">Venue type breakdown</h3>
+            <div style="margin-top:12px" id="chart-cat-bars"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VENUE FORMAT -->
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Operator Landscape</p>
+        <h2 class="section-title reveal">Independent vs chain</h2>
+        <p class="section-desc reveal">${d.chain_pct}% of venues belong to a multi-site chain; the rest are independent single-site operators.</p>
+        <div class="kpi-grid reveal">
+          <div class="kpi-card"><div class="kpi-value">${100 - d.chain_pct}<span style="font-size:24px;color:var(--gray)">%</span></div><div class="kpi-label">Independent operators</div></div>
+          <div class="kpi-card"><div class="kpi-value">${d.chain_pct}<span style="font-size:24px;color:var(--gray)">%</span></div><div class="kpi-label">Chain / multi-site</div></div>
+          ${d.top_chains.length ? `<div class="kpi-card"><div class="kpi-value" style="color:var(--coral)">${d.top_chains.length}</div><div class="kpi-label">Distinct chain operators</div></div>` : ''}
+        </div>
+        ${d.top_chains.length ? `
+        <div class="chart-row reveal" style="margin-top:24px">
+          <div class="chart-box">
+            <h3>Top chains by venue count</h3>
+            <div class="chart-sub">${d.top_chains.length} chain operators with multiple sites in this region.</div>
+            <div>${rowBars(d.top_chains.slice(0, 10), null)}</div>
+          </div>
+          <div class="chart-box">
+            <h3>Bay size distribution</h3>
+            <div class="chart-sub">Among the ${d.n_with_bays} venues with a recorded bay count, median is ${d.median_bays} bays.</div>
+            <div style="position:relative;height:240px"><canvas id="chart-bays"></canvas></div>
+          </div>
+        </div>` : ''}
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    ${price.median ? `
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Pricing</p>
+        <h2 class="section-title reveal">${curPrefix}${price.median} median hourly rate</h2>
+        <p class="section-desc reveal">Based on ${price.count} venues with hourly pricing recorded. All prices normalised to GBP at mid-2026 rates (1 GBP ≈ 190 JPY · 1 GBP ≈ 13 SEK · 1 GBP ≈ 13 NOK · 1 GBP ≈ 9 DKK · 1 GBP ≈ 1 EUR · 1 GBP ≈ 2 AUD · 1 GBP ≈ 2 NZD).</p>
+        <div class="kpi-grid reveal">
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--coral)">${curPrefix}${price.median}</div><div class="kpi-label">Median hourly rate</div></div>
+          <div class="kpi-card"><div class="kpi-value">${curPrefix}${price.mean}</div><div class="kpi-label">Average hourly rate</div></div>
+          <div class="kpi-card"><div class="kpi-value">${curPrefix}${price.min}–${curPrefix}${price.max}</div><div class="kpi-label">Full price range</div></div>
+        </div>
+        ${price.tiers && price.tiers.length ? `
+        <div class="chart-row reveal" style="margin-top:24px">
+          <div class="chart-box">
+            <h3>Price distribution (per hour)</h3>
+            <div style="position:relative;height:260px"><canvas id="chart-prices"></canvas></div>
+          </div>
+          ${mem.median ? `
+          <div class="chart-box">
+            <h3>Membership</h3>
+            <p class="chart-sub">${mem.pct}% offer monthly membership. Median price ${curPrefix}${mem.median}.</p>
+            <div class="cur-grid">
+              <div class="cur-card"><div class="num">${mem.pct}%</div><div class="lbl">offer membership</div></div>
+              <div class="cur-card"><div class="num">${curPrefix}${mem.median}</div><div class="lbl">median monthly</div></div>
+              <div class="cur-card"><div class="num">${curPrefix}${mem.mean}</div><div class="lbl">average monthly</div></div>
+            </div>
+            <div style="margin-top:18px">${mem.tiers.map(([k, v]) => `<div class="progress-item"><div class="progress-header"><span class="label">${curPrefix}${k}/mo</span><span class="value">${v} venues</span></div><div class="progress-bar"><div class="progress-fill coral" data-width="${Math.round(100*v/Math.max(...mem.tiers.map(t=>t[1])))}"></div></div></div>`).join('')}</div>
+          </div>
+          ` : '<div class="chart-box"><h3>Membership</h3><p class="chart-sub">Insufficient membership pricing data in this region.</p></div>'}
+        </div>` : ''}
+      </div>
+    </section>
+    ` : ''}
+
+    <!-- TECHNOLOGY -->
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Technology</p>
+        <h2 class="section-title reveal">Hardware &amp; booking platforms</h2>
+        <p class="section-desc reveal">Market share among the ${fmt(d.n_with_tech)} venues with a recorded hardware brand and ${fmt(d.n_with_booking)} with a recorded booking platform.</p>
+        <div class="chart-row reveal">
+          <div class="chart-box"><h3>Hardware brand share</h3><div style="position:relative;height:300px"><canvas id="chart-tech"></canvas></div></div>
+          <div class="chart-box"><h3>Top booking platforms</h3><div style="position:relative;height:300px"><canvas id="chart-booking"></canvas></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENGAGEMENT -->
+    ${d.engagement.length ? `
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Engagement &amp; Revenue</p>
+        <h2 class="section-title reveal">Service mix</h2>
+        <p class="section-desc reveal">Service offerings observed across the dataset.</p>
+        <div class="engagement-grid reveal">
+          ${d.engagement.map(([label, val]) => {
+            const cls = val >= 75 ? '' : (val >= 50 ? ' mid' : ' low');
+            return `<div class="eng-item"><div class="eng-pct${cls}">${val}%</div><div><div class="eng-label">${label}</div></div></div>`;
+          }).join('')}
+        </div>
+      </div>
+    </section>
+    ` : ''}
+
+    <!-- PROGRAMMES -->
+    ${d.programmes.length ? `
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Accessibility</p>
+        <h2 class="section-title reveal">Entry pathways</h2>
+        <p class="section-desc reveal">Inclusive and entry-level programmes offered by venues across the dataset.</p>
+        <div class="chart-row reveal">
+          <div class="chart-box">
+            <h3>Programme availability</h3>
+            <div style="margin-top:12px">${d.programmes.map(([k, v]) => progressItem(k, v, v >= 50 ? 'coral' : 'amber')).join('')}</div>
+          </div>
+          <div class="chart-box">
+            <h3>Access model</h3>
+            <div class="chart-sub">How venues are accessed in this region.</div>
+            <div style="position:relative;height:240px"><canvas id="chart-access"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    ` : ''}
+
+    <!-- MARKET INSIGHTS -->
+    ${(() => {
+      const ins = d.insights || {};
+      const parts = [];
+      if (ins.best_year) {
+        parts.push(`<div class="stat-highlight reveal"><div class="num">+${ins.best_year.count}</div><div class="desc"><strong>Strongest year on record: ${ins.best_year.year}.</strong> ${ins.best_year.count} new venues opened — the single biggest cohort in the dataset.</div></div>`);
+      }
+      if (ins.tech_premium && ins.tech_premium.pct > 0) {
+        parts.push(`<div class="stat-highlight reveal"><div class="num">+${ins.tech_premium.pct}%</div><div class="desc"><strong>${ins.tech_premium.top} venues charge more.</strong> Average hourly rate at ${ins.tech_premium.top} venues is £${ins.tech_premium.top_price} (n=${ins.tech_premium.top_n}) vs £${ins.tech_premium.cmp_price} at ${ins.tech_premium.cmp} venues (n=${ins.tech_premium.cmp_n}). Premium positioning of higher-end hardware correlates with higher consumer pricing.</div></div>`);
+      }
+      if (ins.chain_premium && ins.chain_premium.pct > 0) {
+        parts.push(`<div class="stat-highlight reveal"><div class="num">+${ins.chain_premium.pct}%</div><div class="desc"><strong>Chain operators charge ${ins.chain_premium.pct}% more than independents.</strong> Median hourly rate at chain venues is £${ins.chain_premium.chain_med} (n=${ins.chain_premium.chain_n}) vs £${ins.chain_premium.indep_med} at independents (n=${ins.chain_premium.indep_n}) — reflecting higher investment in fitout, branding, and customer experience.</div></div>`);
+      }
+      if (ins.booking_gap) {
+        parts.push(`<div class="stat-highlight reveal" style="border-left-color:var(--green)"><div class="num" style="color:var(--green)">${ins.booking_gap}</div><div class="desc"><strong>Simulator venues with no booking platform identified.</strong> Off-course sim venues and coaching studios with active operations but no online booking system in our data — a significant operator-tech gap.</div></div>`);
+      }
+      if (ins.leagues_no_comp) {
+        parts.push(`<div class="stat-highlight reveal" style="border-left-color:var(--green)"><div class="num" style="color:var(--green)">${ins.leagues_no_comp}</div><div class="desc"><strong>Venues run leagues with no competition platform.</strong> Sites running leagues or competitions without a dedicated competition management platform — an untapped market for Golf Genius.</div></div>`);
+      }
+      const scaleHtml = (ins.scale_effect && ins.scale_effect.length) ? `
+        <div class="chart-box">
+          <h3>The scale effect — features by venue size</h3>
+          <p class="chart-sub">Larger venues are more likely to offer multi-revenue features — F&B, corporate events, and membership programmes.</p>
+          ${ins.scale_effect.map(row => {
+            const buckets = ['6+ bays', '3–5 bays', '1–2 bays'];
+            return buckets.filter(b => row[b] != null).map(b => {
+              const v = row[b];
+              const color = v >= 70 ? 'coral' : v >= 40 ? 'blue' : 'amber';
+              return `<div class="progress-item"><div class="progress-header"><span class="label">${row.feature} — ${b}</span><span class="value">${v}%</span></div><div class="progress-bar"><div class="progress-fill ${color}" data-width="${v}"></div></div></div>`;
+            }).join('') + '<div style="height:14px"></div>';
+          }).join('')}
+        </div>` : '';
+      const trendHtml = (ins.size_trend && ins.size_trend.length) ? `
+        <div class="chart-box">
+          <h3>Venue size trend by opening cohort</h3>
+          <p class="chart-sub">Average bays per venue and % of venues with 3+ bays, grouped by when they opened.</p>
+          <div style="position:relative;height:240px"><canvas id="chart-trend"></canvas></div>
+        </div>` : '';
+      const techByCountryHtml = (ins.tech_by_country && ins.tech_by_country.rows.length >= 2) ? `
+        <div class="chart-box">
+          <h3>${ins.tech_by_country.brand} share by country</h3>
+          <p class="chart-sub">How dominant the leading brand (${ins.tech_by_country.brand}) is across each market in this region.</p>
+          ${ins.tech_by_country.rows.map(row => {
+            const color = row.share >= 60 ? 'coral' : row.share >= 30 ? 'blue' : 'amber';
+            return `<div class="progress-item"><div class="progress-header"><span class="label">${row.country} (n=${row.n})</span><span class="value">${row.share}%</span></div><div class="progress-bar"><div class="progress-fill ${color}" data-width="${row.share}"></div></div></div>`;
+          }).join('')}
+        </div>` : '';
+      const priceByCountryHtml = (ins.price_by_country && ins.price_by_country.length >= 2) ? `
+        <div class="chart-box">
+          <h3>Median hourly rate by country</h3>
+          <p class="chart-sub">All values in GBP at mid-2026 rates. Reveals pricing power and market positioning across the region.</p>
+          <div class="cur-grid">
+            ${ins.price_by_country.map((row, i) => `<div class="cur-card"><div class="num"${i === 0 ? ' style="color:var(--coral)"' : ''}>£${row.median}</div><div class="lbl">${row.country} · n=${row.n}</div></div>`).join('')}
+          </div>
+        </div>` : '';
+      if (!parts.length && !scaleHtml && !trendHtml && !techByCountryHtml && !priceByCountryHtml) return '';
+      return `
+        <section>
+          <div class="container">
+            <p class="section-label reveal">Market Insights</p>
+            <h2 class="section-title reveal">What the data reveals</h2>
+            <p class="section-desc reveal">Cross-cutting analysis surfacing pricing dynamics, growth trends, and commercial opportunity.</p>
+            ${parts.join('')}
+            ${(scaleHtml || trendHtml) ? `<div class="chart-row reveal" style="margin-top:24px">${scaleHtml}${trendHtml}</div>` : ''}
+            ${(techByCountryHtml || priceByCountryHtml) ? `<div class="chart-row reveal" style="margin-top:24px">${techByCountryHtml}${priceByCountryHtml}</div>` : ''}
+          </div>
+        </section>
+      `;
+    })()}
+
+    <!-- CUSTOMER EXPERIENCE -->
+    ${d.ce.avg_rating ? `
+    <section>
+      <div class="container">
+        <p class="section-label reveal">Customer Experience</p>
+        <h2 class="section-title reveal">Rated ${d.ce.avg_rating} on Google</h2>
+        <p class="section-desc reveal">Based on Google Reviews data across the dataset.</p>
+        <div class="kpi-grid reveal">
+          <div class="kpi-card"><div class="kpi-value" style="color:var(--coral)">${d.ce.avg_rating}</div><div class="kpi-label">Average Google rating</div></div>
+          <div class="kpi-card"><div class="kpi-value">${d.ce.high_rated_pct}<span style="font-size:24px;color:var(--gray)">%</span></div><div class="kpi-label">Rated 4.5 or higher</div></div>
+          <div class="kpi-card"><div class="kpi-value">${d.ce.median_reviews}</div><div class="kpi-label">Median review count</div></div>
+        </div>
+      </div>
+    </section>
+    ` : ''}
+
+  `;
+}
+
+function renderCharts(d) {
+  const cats = d.categories;
+  const catLabels = {
+    'Off-course simulator venue': 'Off-course sim',
+    'Golf course with simulator': 'Course with sim',
+    'Simulator at golf club': 'Sim at club',
+    'Hotel/resort with simulator': 'Hotel/resort',
+    'Coaching studio': 'Coaching studio',
+    'Entertainment venue': 'Entertainment',
+    'Driving range with tracking': 'Range w/ tracking',
+  };
+  // Inject category bars into the geo section
+  const catHost = document.getElementById('chart-cat-bars');
+  if (catHost) {
+    const total = cats.reduce((s, c) => s + c[1], 0);
+    const palette = ['coral','blue','green','amber','purple','coral','blue'];
+    catHost.innerHTML = cats.map(([cat, n], i) => {
+      const label = catLabels[cat] || cat;
+      const v = Math.round(100 * n / total);
+      return `<div class="progress-item"><div class="progress-header"><span class="label">${label}</span><span class="value">${n} (${v}%)</span></div><div class="progress-bar"><div class="progress-fill ${palette[i % palette.length]}" data-width="${v}"></div></div></div>`;
+    }).join('');
+  }
+
+  // Growth bar — stacked: actual + (2026-only) projection delta
+  safeChart('chart-growth', {
+    type:'bar',
+    data:{
+      labels: d.growth.labels,
+      datasets:[
+        { label: 'Actual', data: d.growth.new, backgroundColor: CORAL, borderRadius:6, stack: 'y' },
+        { label: 'Projected', data: d.growth.projection_delta, backgroundColor: CORAL_A, borderRadius:6, stack: 'y' }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{
+          afterBody: function(items) {
+            // Show projected total only on the 2026 bar
+            const label = items[0]?.label;
+            if (label && label.includes('2026')) {
+              const ytd = d.growth.ytd_2026;
+              const proj = d.growth.projected_2026;
+              return `\nYTD: ${ytd}  ·  Projected full-year: ${proj}`;
+            }
+            return '';
+          }
+        }}
+      },
+      scales:{
+        x:{stacked:true,grid:{display:false}},
+        y:{stacked:true,beginAtZero:true,grid:{color:GRID}}
+      }
+    }
+  });
+  // Cumulative line
+  safeChart('chart-cumulative', {
+    type:'line', data:{ labels: d.growth.labels, datasets:[{ data: d.growth.cumulative, borderColor: CORAL, backgroundColor: CORAL_A, fill:true, tension:.3, pointRadius:3, pointBackgroundColor: CORAL }] },
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,grid:{color:GRID}},x:{grid:{display:false}}}}
+  });
+
+  // Cities bar
+  if (d.top_cities.length) {
+    safeChart('chart-cities', {
+      type:'bar', data:{ labels: d.top_cities.map(c => c[0]), datasets:[{ data: d.top_cities.map(c => c[1]), backgroundColor: CORAL, borderRadius:4 }] },
+      options: BAR_OPTS(true)
+    });
+  }
+
+  // Countries doughnut
+  if (d.countries.length) {
+    const palette = [CORAL, BLUE, GREEN, AMBER, PURPLE, PINK, '#fb923c', '#22d3ee', '#84cc16', '#94a3b8', '#f43f5e', '#10b981'];
+    safeChart('chart-countries', {
+      type:'doughnut', data:{
+        labels: d.countries.map(c => `${c[0]} (${c[1]})`),
+        datasets:[{ data: d.countries.map(c => c[1]), backgroundColor: palette, borderColor:'#2a2a2b', borderWidth:3 }]
+      }, options: DONUT_OPTS
+    });
+  }
+
+  // Bay distribution doughnut
+  if (d.bay_buckets && d.bay_buckets.length) {
+    safeChart('chart-bays', {
+      type:'doughnut', data:{
+        labels: d.bay_buckets.map(b => b[0]),
+        datasets:[{ data: d.bay_buckets.map(b => b[1]), backgroundColor: [CORAL_A, CORAL, '#8C2B37'], borderColor:'#2a2a2b', borderWidth:3 }]
+      }, options: DONUT_OPTS
+    });
+  }
+
+  // Prices bar
+  if (d.price && d.price.tiers && d.price.tiers.length) {
+    if (document.getElementById('chart-prices')) {
+      safeChart('chart-prices', {
+        type:'bar', data:{ labels: d.price.tiers.map(p => p[0]), datasets:[{ data: d.price.tiers.map(p => p[1]), backgroundColor: CORAL, borderRadius:6 }] },
+        options: BAR_OPTS(false, v => v + ' venues')
+      });
+    }
+  }
+
+  // Tech doughnut
+  if (d.technology.length) {
+    const palette = [CORAL, BLUE, GREEN, AMBER, PURPLE, PINK, '#6b7280', '#fb923c'];
+    safeChart('chart-tech', {
+      type:'doughnut', data:{
+        labels: d.technology.map(t => `${t[0]} (${t[1]})`),
+        datasets:[{ data: d.technology.map(t => t[1]), backgroundColor: palette, borderColor:'#2a2a2b', borderWidth:3 }]
+      }, options: DONUT_OPTS
+    });
+  }
+
+  // Booking bar
+  if (d.booking.length) {
+    safeChart('chart-booking', {
+      type:'bar', data:{ labels: d.booking.map(b => b[0]), datasets:[{ data: d.booking.map(b => b[1]), backgroundColor: CORAL, borderRadius:4 }] },
+      options: BAR_OPTS(true)
+    });
+  }
+
+  // Size-trend (insights section)
+  if (d.insights && d.insights.size_trend && d.insights.size_trend.length) {
+    const tr = d.insights.size_trend;
+    if (document.getElementById('chart-trend')) {
+      safeChart('chart-trend', {
+        type: 'bar',
+        data: {
+          labels: tr.map(t => t.cohort),
+          datasets: [
+            { label: 'Avg bays', data: tr.map(t => t.avg_bays), backgroundColor: CORAL, borderRadius: 6, yAxisID: 'y' },
+            { label: '% with 3+ bays', data: tr.map(t => t.pct_3plus), backgroundColor: BLUE, borderRadius: 6, yAxisID: 'y1' },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: true, position: 'top', labels: { padding: 12, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } } },
+          scales: {
+            y:  { beginAtZero: true, position: 'left',  grid: { color: GRID }, title: { display: true, text: 'Avg bays',  color: '#9ca3af' } },
+            y1: { beginAtZero: true, position: 'right', grid: { display: false }, title: { display: true, text: '% with 3+', color: '#9ca3af' }, ticks: { callback: v => v + '%' } },
+            x:  { grid: { display: false } }
+          }
+        }
+      });
+    }
+  }
+
+  // Access doughnut
+  if (d.access && d.access.length) {
+    if (document.getElementById('chart-access')) {
+      const palette = [GREEN, AMBER, BLUE, PURPLE, PINK, '#6b7280'];
+      safeChart('chart-access', {
+        type:'doughnut', data:{
+          labels: d.access.map(a => `${a[0]} (${a[1]})`),
+          datasets:[{ data: d.access.map(a => a[1]), backgroundColor: palette, borderColor:'#2a2a2b', borderWidth:3 }]
+        }, options: DONUT_OPTS
+      });
+    }
+  }
+}
+
+function showSlice() {
+  const region = document.getElementById('region-filter').value;
+  const type = document.getElementById('type-filter').value;
+  const key = `${region} · ${type}`;
+  const d = SLICES[key];
+  const host = document.getElementById('panels');
+
+  // Update filter summary line
+  const summary = document.getElementById('filter-summary');
+  if (d) {
+    summary.innerHTML = `Showing <strong>${fmt(d.total)}</strong> venues — <strong>${region}</strong>, <strong>${type}</strong>.`;
+  } else {
+    summary.innerHTML = `No venues match this combination — <strong>${region}</strong>, <strong>${type}</strong>.`;
+  }
+
+  destroyCharts();
+
+  if (!d) {
+    host.innerHTML = `
+      <div class="container">
+        <div class="empty-state">
+          <h2>No venues in this slice</h2>
+          <p>Try widening either the region or the venue-type filter.</p>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Build a fresh panel
+  const panel = document.createElement('div');
+  panel.className = 'panel';
+  panel.innerHTML = renderPanel(region, type, d);
+  host.innerHTML = '';
+  host.appendChild(panel);
+
+  // Render charts on the next tick so the DOM has flushed
+  setTimeout(() => {
+    renderCharts(d);
+    panel.querySelectorAll('.progress-fill[data-width]').forEach(bar => {
+      setTimeout(() => bar.style.width = bar.dataset.width + '%', 200);
+    });
+    animateCounters(panel);
+    panel.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  }, 30);
+}
+
+function animateCounters(scope) {
+  scope.querySelectorAll('.kpi-value[data-count], .kpi-value span[data-count]').forEach(el => {
+    const target = parseFloat(el.dataset.count);
+    const decimals = parseInt(el.dataset.decimals || '0');
+    const suffix = el.dataset.suffix || '';
+    const separator = el.dataset.separator || '';
+    const duration = 1200;
+    const start = performance.now();
+    function update(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = target * eased;
+      let txt = current.toFixed(decimals);
+      if (separator === ',') txt = txt.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      el.textContent = txt + suffix;
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  });
+}
+
+document.getElementById('region-filter').addEventListener('change', showSlice);
+document.getElementById('type-filter').addEventListener('change', showSlice);
+showSlice();
+</script>
+</body>
+</html>
